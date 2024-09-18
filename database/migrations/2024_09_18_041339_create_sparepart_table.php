@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('teknisi', function (Blueprint $table) {
-            $table->id('id_teknisi');
-            $table->string('nama_teknisi', 255);
-            $table->string('nohp_teknisi', 15)->unique();
-            $table->string('status', 50);
-            $table->string('password', 50);
-            $table->rememberToken();
+        Schema::create('sparepart', function (Blueprint $table) {
+            $table->id('id_sparepart');
+            $table->string('jenis_sparepart', 255);
+            $table->string('merek_sparepart', 255);
+            $table->string('model_sparepart', 255);
+            $table->decimal('harga_sparepart', 10,2);
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('teknisi');
+        Schema::dropIfExists('sparepart');
     }
 };
