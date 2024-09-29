@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id('id_teknisi');
             $table->string('nama_teknisi', 255);
             $table->string('nohp_teknisi', 15)->unique();
-            $table->string('status', 50);
-            $table->string('password', 50);
+            $table->enum('status', ['Pemilik', 'Pegawai'])->default('Pegawai');
+            $table->string('password', 255);
             $table->rememberToken();
             $table->timestamps();
         });

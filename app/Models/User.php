@@ -18,9 +18,10 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'nama_teknisi',
+        'nohp_teknisi',
         'password',
+        'status'
     ];
 
     /**
@@ -39,7 +40,17 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function isPemilik(){
+        return $this->status === 'pemilik';
+    }
+
+    public function isPegawai(){
+        return $this->status === 'pegawai';
+    }
+
+
 }

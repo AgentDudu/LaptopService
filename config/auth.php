@@ -38,7 +38,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'teknisi',
         ],
     ],
 
@@ -62,15 +62,19 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\Models\Teknisi::class,
         ],
 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
-    ],
 
+    'teknisi' => [  
+            'driver' => 'eloquent',
+            'model' => App\Models\Teknisi::class,  
+        ],
+    ],
     /*
     |--------------------------------------------------------------------------
     | Resetting Passwords
