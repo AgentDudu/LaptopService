@@ -1,1 +1,1 @@
-<img src="{{ asset('images/database.svg') }}" alt="Database Icon" width="16" height="16">
+<img src="{{ asset('images/svg-database.svg') }}" alt="Database Icon" width="16" height="16">

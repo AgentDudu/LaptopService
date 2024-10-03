@@ -1,12 +1,12 @@
 <x-guest-layout>
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
-        <div class="row border rounded-5 p-3 bg-white shadow box-area">
+        <div id="whitebox" class="row border rounded-5 p-3 bg-white shadow box-area">
             <div class="col-md-6 right-box">
                 <div class="logo d-flex align-items-center">
                     <a href="/">
-                        <x-application-logo class="w-20 h-20 fill-current text-gray-500 rounded-circle" />
+                        <x-images.logo-circle class="w-20 h-20 fill-current text-gray-500 rounded-circle" />
                     </a>
-                    <span class="ml-6 text-lg fw-bolder fs-4" style="text-shadow: 2px 2px 4px #99ff62;">Laptop Cafe Jogjakarta</span>
+                    <span class="ml-2 text-lg fw-bolder fs-4" style="text-shadow: 2px 2px 4px #99ff62;">Laptop Cafe Jogjakarta</span>
                 </div>
                 <div class="d-flex mb-4 tab-buttons">
                     <button class="tablink btn w-50 active" onclick="openTab(event, 'Login')" id="loginTab">{{ __('Login') }}</button>
@@ -86,9 +86,9 @@
                 </div>
             </div>
 
-            <!-- Left Box Section (Background) -->
+            <!-- Right Box Section (Background) -->
             <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box"
-                style="background: url('{{asset('images/login-bg.png')}}') no-repeat center center; background-size: cover;">
+                style="background: url('{{asset('images/login-bg.png')}}') no-repeat center center; background-size: 420px 720px;">
             </div>
         </div>
     </div>
@@ -130,6 +130,10 @@
             font-family: 'Poppins', sans-serif;
             overflow: hidden;
             background: #ececec;
+        }
+
+        #whitebox {
+            margin-top: -15px;
         }
 
         .box-area {

@@ -1,10 +1,12 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PemilikController;
-use App\Http\Controllers\PegawaiController;
+
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\TeknisiController;
+use App\Http\Controllers\PelangganController;
+use App\Http\Controllers\LaptopController;
+use App\Http\Controllers\JasaServisController;
+use App\Http\Controllers\ServisController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,63 +19,57 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
+// Login Register------------------------------------------------------------------------------------
 Route::get('/', function () {
     return view('auth.login');
 })->name('home');
+require __DIR__ . '/auth.php';
 
-require __DIR__.'/auth.php';
-
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/dashboard', function () {
-//         return view('dashboard'); // Or your desired view for the dashboard
-//     })->name('dashboard');
-
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
-
-Route::get('/dashboard', function () {
-    if (auth()->user()->status == 'Pemilik') {
-        return view('pemilik.dashboard');
+Route::get('dashboard', function () {
+    if (auth()->user()->status === 'Pemilik') {
+        return view('admin.dashboard-admin');
     } else {
-        return view('pegawai.dashboard');
+        return view('non-admin.dashboard-nonadmin');
     }
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+// Teknisi-------------------------------------------------------------------------------------------
+Route::get('/teknisi', [TeknisiController::class, 'index'])->name('teknisi.index');
+Route::get('/teknisi/create', [TeknisiController::class, 'create'])->name('teknisi.create');
+Route::post('/teknisi', [TeknisiController::class, 'store'])->name('teknisi.store');
+Route::get('/teknisi/{id}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
+Route::put('/teknisi/{id}', [TeknisiController::class, 'update'])->name('teknisi.update');
+Route::delete('/teknisi/{id}', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');
 
-// Route::get('/pemilik', [PemilikController::class, 'index'])->middleware('auth')->name('pemilik.dashboard');
-// Route::get('/pegawai', [PegawaiController::class, 'index'])->middleware('auth')->name('pegawai.dashboard');
+// Pelanggan-----------------------------------------------------------------------------------------
+Route::get('/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
+Route::get('/pelanggan/create', [PelangganController::class, 'create'])->name('pelanggan.create');
+Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
+Route::get('/pelanggan/{id}/edit', [PelangganController::class, 'edit'])->name('pelanggan.edit');
+Route::put('/pelanggan/{id}', [PelangganController::class, 'update'])->name('pelanggan.update');
+Route::delete('/pelanggan/{id}', [PelangganController::class, 'destroy'])->name('pelanggan.destroy');
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-//     Route::resource('customers', CustomerController::class);
-//     Route::resource('users', UserController::class);
-//     Route::resource('laptops', LaptopController::class);
-//     Route::resource('services', ServiceController::class);
-//     Route::resource('warranties', WarrantyController::class);
-//     Route::resource('service_transactions', ServiceTransactionController::class);
-//     Route::get('service_transactions', [ServiceTransactionController::class, 'index'])->name('service_transactions.index');
-//     Route::get('service_transactions/getLaptopDetails/{laptopId}', [ServiceTransactionController::class, 'getLaptopDetails']);
-//     Route::get('service_transactions/{transaction}/pay', [ServiceTransactionController::class, 'showPayForm'])->name('service_transactions.pay');
-//     Route::post('service_transactions/{transaction}/pay', [ServiceTransactionController::class, 'processPayment'])->name('service_transactions.processPayment');
-//     Route::get('service_transactions/view/{transaction}', [ServiceTransactionController::class, 'show'])->name('service_transactions.show');
-//     Route::get('service_transactions/print/{transaction}', [ServiceTransactionController::class, 'print'])->name('service_transactions.print');
-// });
+// Laptop--------------------------------------------------------------------------------------------
+Route::get('/laptop', [LaptopController::class, 'index'])->name('laptop.index');
+Route::get('/laptop/create', [LaptopController::class, 'create'])->name('laptop.create');
+Route::post('/laptop', [LaptopController::class, 'store'])->name('laptop.store');
+Route::get('/laptop/{id}/edit', [LaptopController::class, 'edit'])->name('laptop.edit');
+Route::put('/laptop/{id}', [LaptopController::class, 'update'])->name('laptop.update');
+Route::delete('/laptop/{id}', [LaptopController::class, 'destroy'])->name('laptop.destroy');
 
+// Jasa Servis---------------------------------------------------------------------------------------
+Route::get('/jasaServis', [JasaServisController::class, 'index'])->name('jasaServis.index');
+Route::get('/jasaServis/create', [JasaServisController::class, 'create'])->name('jasaServis.create');
+Route::post('/jasaServis', [JasaServisController::class, 'store'])->name('jasaServis.store');
+Route::get('/jasaServis/{id}/edit', [JasaServisController::class, 'edit'])->name('jasaServis.edit');
+Route::put('/jasaServis/{id}', [JasaServisController::class, 'update'])->name('jasaServis.update');
+Route::delete('/jasaServis/{id}', [JasaServisController::class, 'destroy'])->name('jasaServis.destroy');
 
-// // Route::middleware(['auth', 'admin'])->group(function () {
-// //     Route::get('admin/dashboard', [HomeController::class, 'index']);
+// Resource--------------------------------------------------------------------------------------------
+Route::resource('teknisi', TeknisiController::class);
+Route::resource('pelanggan', PelangganController::class);
+Route::resource('laptop', LaptopController::class);
+Route::resource('jasaServis', JasaServisController::class);
 
-// //     Route::get('/admin/products', [ProductController::class, 'index'])->name('admin/products');
-// //     Route::get('/admin/products/create', [ProductController::class, 'create'])->name('admin/products/create');
-// //     Route::post('/admin/products/save', [ProductController::class, 'save'])->name('admin/products/save');
-// //     Route::get('/admin/products/edit/{id}', [ProductController::class, 'edit'])->name('admin/products/edit');
-// //     Route::put('/admin/products/edit/{id}', [ProductController::class, 'update'])->name('admin/products/update');
-// //     Route::get('/admin/products/delete/{id}', [ProductController::class, 'delete'])->name('admin/products/delete');
-// // });
+// Lain-lain (ini blm fix, hanya perlu dideklarasikan aja biar yg lain ga error)
+Route::get('/servis', [ServisController::class, 'index'])->name('servis.index');

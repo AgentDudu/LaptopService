@@ -1,0 +1,1 @@
+<img src="{{ asset('images/svg-delete.svg') }}" alt="Delete Icon" width="20" height="21">

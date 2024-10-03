@@ -1,0 +1,1 @@
+<img src="{{ asset('images/svg-edit.svg') }}" alt="Edit Icon" width="19" height="19">
