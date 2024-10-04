@@ -33,9 +33,10 @@
         }
 
         #content-frame {
-            width: 100%;
+            max-width: 100%;
             background-color: #F8F9FA;
-            height: fit-content;
+            max-height: 500px;
+            overflow-y: scroll; 
         }
 
         .center-container {
@@ -126,7 +127,7 @@
     <!-- Modal -->
     <!-- Hanya bisa diakses jika user adalah Pemilik -->
     @if (Auth::user()->status === 'Pemilik')
-    
+
         <!--💦 Create Form 💦-->
         <div class="modal fade" id="tambahJasaModal" tabindex="-1" aria-labelledby="tambahJasaModalLabel"
             aria-hidden="true">

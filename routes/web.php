@@ -26,11 +26,9 @@ Route::get('/', function () {
 require __DIR__ . '/auth.php';
 
 Route::get('dashboard', function () {
-    if (auth()->user()->status === 'Pemilik') {
-        return view('admin.dashboard-admin');
-    } else {
-        return view('non-admin.dashboard-nonadmin');
-    }
+    if (auth()->user()->status === 'Pemilik' || 'Pegawai') {
+        return view('dashboard.dashboard-user');
+    } 
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Teknisi-------------------------------------------------------------------------------------------

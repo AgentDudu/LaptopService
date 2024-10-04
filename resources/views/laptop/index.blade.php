@@ -33,9 +33,10 @@
         }
 
         #content-frame {
-            width: 100%;
+            max-width: 100%;
             background-color: #F8F9FA;
-            height: fit-content;
+            max-height: 500px;
+            overflow-y: scroll; 
         }
 
         table {

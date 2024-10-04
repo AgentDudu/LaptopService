@@ -33,7 +33,7 @@
         }
 
         #content-frame {
-            width: 100%;
+            max-width: 100%;
             background-color: #F8F9FA;
             height: fit-content;
         }
@@ -55,7 +55,11 @@
     <div class="main-container">
         <!-- Sidebar -->
         <div class="sidebar text-white">
-            <x-sidebar-admin />
+            @if (Auth::user()->status === 'Pegawai')
+                <x-sidebar-nonadmin />
+            @else
+                <x-sidebar-admin />
+            @endif
         </div>
 
         <!-- Main Content -->
@@ -65,7 +69,7 @@
             <hr>
             <!-- Your main content here -->
             <div id="content-frame" class="center-container">
-                <x-images.person-vector1 width="450" height="400" id="imagevector" />
+                <x-images.person-vector1 width="450" height="400" id="imagevector"/>
             </div>
         </main>
     </div>
