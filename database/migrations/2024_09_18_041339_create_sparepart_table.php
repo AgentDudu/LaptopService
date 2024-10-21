@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sparepart', function (Blueprint $table) {
-            $table->id('id_sparepart');
+            $table->string('id_sparepart')->primary();
             $table->string('jenis_sparepart', 255);
             $table->string('merek_sparepart', 255);
             $table->string('model_sparepart', 255);
-            $table->decimal('harga_sparepart', 10,2);
+            $table->integer('harga_sparepart');
             $table->timestamps();
         });
     }

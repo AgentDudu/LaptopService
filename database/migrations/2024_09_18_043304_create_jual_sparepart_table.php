@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jual_sparepart', function (Blueprint $table) {
-            $table->id('id_transaksi_sparepart');
-            $table->foreignId('id_pelanggan')->constrained('pelanggan', 'id_pelanggan')->onDelete('cascade');
-            $table->foreignId('id_teknisi')->constrained('teknisi', 'id_teknisi')->onDelete('cascade');
+            $table->string('id_transaksi_sparepart')->primary();
+            $table->string('id_pelanggan');
+            $table->foreign('id_pelanggan')->references('id_pelanggan')->on('pelanggan')->onDelete('cascade');
+            $table->string('id_teknisi');
+            $table->foreign('id_teknisi')->references('id_teknisi')->on('teknisi')->onDelete('cascade');
             $table->date('tanggal_jual');
-            $table->decimal('harga_total_transaksi_sparepart',10,2);
+            $table->integer('harga_total_transaksi_sparepart');
             $table->timestamps();
         });
     }

@@ -12,15 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('detail_transaksi_servis', function (Blueprint $table) {
-            $table->foreignId('id_service')->constrained('service', 'id_service')->onDelete('cascade');
-            $table->foreignId('id_jasa')->constrained('jasa_servis', 'id_jasa')->cascadeOnDelete();
-            $table->foreignId('id_sparepart')->constrained('sparepart', 'id_sparepart')->cascadeOnDelete();            
-            $table->decimal('harga_transaksi_jasa_servis', 10,2);
+            $table->string('id_service');
+            $table->foreign('id_service')->references('id_service')->on('service')->onDelete('cascade');
+            $table->string('id_jasa');
+            $table->foreign('id_jasa')->references('id_jasa')->on('jasa_servis')->onDelete('cascade');
+            $table->string('id_sparepart');
+            $table->foreign('id_sparepart')->references('id_sparepart')->on('sparepart')->onDelete('cascade');
+            $table->integer('harga_transaksi_jasa_servis');
             $table->integer('jumlah_sparepart_terpakai');
             $table->integer('jangka_garansi_bulan');
             $table->date('akhir_garansi');
-            $table->decimal('subtotal_servis', 10,2);
-            $table->decimal('subtotal_sparepart',10,2);
+            $table->integer('subtotal_servis');
+            $table->integer('subtotal_sparepart');
             $table->timestamps();
         });
     }

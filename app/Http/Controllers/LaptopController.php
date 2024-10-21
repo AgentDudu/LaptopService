@@ -28,6 +28,12 @@ class LaptopController extends Controller
             'deskripsi_masalah' => 'required'
         ]);
 
+        $lastLaptop = Laptop::orderBy('id_laptop', 'desc')->first();
+        $lastId = $lastLaptop ? intval(str_replace('LP', '', $lastLaptop->id_laptop)) : 0;
+        $newIdLaptop = 'LP' . ($lastId + 1);
+
+        $validation = array_merge($validation, ['id_laptop' => $newIdLaptop]);
+
         $laptop = Laptop::create($validation);
         if($laptop) {
             session()->flash('success', 'Laptop berhasil ditambahkan.');

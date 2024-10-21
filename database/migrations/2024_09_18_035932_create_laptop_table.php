@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('laptop', function (Blueprint $table) {
-            $table->id('id_laptop');
-            $table->foreignId('id_pelanggan')->constrained('pelanggan', 'id_pelanggan')->onDelete('cascade');
+            $table->string('id_laptop')->primary();
+            $table->string('id_pelanggan');
+            $table->foreign('id_pelanggan')->references('id_pelanggan')->on('pelanggan')->onDelete('cascade');
             $table->string('merek_laptop', 255);
             $table->text('deskripsi_masalah');
             $table->timestamps();

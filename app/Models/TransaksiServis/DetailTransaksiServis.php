@@ -10,6 +10,7 @@ class DetailTransaksiServis extends Model
     use HasFactory;
 
     protected $table = 'detail_transaksi_servis';
+    protected $keyType = 'string';
     protected $fillable = [
         'id_service',
         'id_jasa',

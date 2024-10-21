@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('detail_transaksi_sparepart', function (Blueprint $table) {
-            $table->foreignId('id_transaksi_sparepart')->constrained('jual_sparepart', 'id_transaksi_sparepart');
-            $table->foreignId('id_sparepart')->constrained('sparepart', 'id_sparepart');
+            $table->string('id_transaksi_sparepart');
+            $table->foreign('id_transaksi_sparepart')->references('id_transaksi_sparepart')->on('jual_sparepart')->onDelete('cascade');
+            $table->string('id_sparepart');
+            $table->foreign('id_sparepart')->references('id_sparepart')->on('sparepart')->onDelete('cascade');
             $table->integer('jumlah_sparepart_terjual');
             $table->timestamps();
         });

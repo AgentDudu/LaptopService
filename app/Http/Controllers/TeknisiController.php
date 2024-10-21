@@ -9,8 +9,8 @@ class TeknisiController extends Controller
 {
     public function index()
     {
-        $teknisi = Teknisi::all();  
-        return view('teknisi.index', compact('teknisi')); 
+        $teknisi = Teknisi::all();
+        return view('teknisi.index', compact('teknisi'));
     }
 
     public function create()
@@ -26,6 +26,12 @@ class TeknisiController extends Controller
             'nohp_teknisi' => 'required|unique:teknisi,nohp_teknisi',
             'password' => 'required|min:8'
         ]);
+
+        $lastTeknisi = Teknisi::orderBy('id_teknisi', 'desc')->first();
+        $lastId = $lastTeknisi ? intval(str_replace('TEK', '', $lastTeknisi->id_teknisi)) : 0;
+        $newIdTeknisi = 'TEK' . ($lastId + 1);
+
+        $validation = array_merge($validation, ['id_teknisi' => $newIdTeknisi]);
 
         $teknisi = Teknisi::create($validation);
 

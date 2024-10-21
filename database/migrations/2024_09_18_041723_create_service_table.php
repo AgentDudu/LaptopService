@@ -12,13 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('service', function (Blueprint $table) {
-            $table->id('id_service');
-            $table->foreignId('id_laptop')->constrained('laptop', 'id_laptop')->onDelete('cascade');
-            $table->foreignId('id_teknisi')->constrained('teknisi', 'id_teknisi')->onDelete('cascade');
+            $table->string('id_service')->primary();
+            $table->string('id_laptop');
+            $table->foreign('id_laptop')->references('id_laptop')->on('laptop')->onDelete('cascade');
+            $table->string('id_teknisi');
+            $table->foreign('id_teknisi')->references('id_teknisi')->on('teknisi')->onDelete('cascade');
             $table->date('tanggal_masuk');
             $table->date('tanggal_keluar');
-            $table->string('status_bayar',50);
-            $table->decimal('harga_total_transaksi_servis', 10,2);
+            $table->string('status_bayar', 50);
+            $table->integer('harga_total_transaksi_servis');
             $table->timestamps();
         });
     }

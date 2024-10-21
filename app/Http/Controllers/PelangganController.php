@@ -25,6 +25,12 @@ class PelangganController extends Controller
             'nohp_pelanggan' => 'required|unique:pelanggan,nohp_pelanggan',
         ]);
 
+        $lastPelanggan = Pelanggan::orderBy('id_pelanggan', 'desc')->first();
+        $lastId = $lastPelanggan ? intval(str_replace('PL', '', $lastPelanggan->id_pelanggan)) : 0;
+        $newIdPelanggan = 'PL' . ($lastId + 1);
+
+        $validation = array_merge($validation, ['id_pelanggan' => $newIdPelanggan]);
+
         $pelanggan = Pelanggan::create($validation);
 
         if ($pelanggan) {
