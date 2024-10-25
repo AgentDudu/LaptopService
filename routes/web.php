@@ -7,6 +7,7 @@ use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\LaptopController;
 use App\Http\Controllers\JasaServisController;
 use App\Http\Controllers\ServisController;
+use App\Http\Controllers\TransaksiServisController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +29,7 @@ require __DIR__ . '/auth.php';
 Route::get('dashboard', function () {
     if (auth()->user()->status === 'Pemilik' || 'Pegawai') {
         return view('dashboard.dashboard-user');
-    } 
+    }
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Teknisi-------------------------------------------------------------------------------------------
@@ -70,4 +71,6 @@ Route::resource('laptop', LaptopController::class);
 Route::resource('jasaServis', JasaServisController::class);
 
 // Lain-lain (ini blm fix, hanya perlu dideklarasikan aja biar yg lain ga error)
-Route::get('/servis', [ServisController::class, 'index'])->name('servis.index');
+// Route::resource('servis', ServisController::class);
+Route::resource('transaksiServis', TransaksiServisController::class);
+Route::post('/transaksiServis/bayar', [TransaksiServisController::class, 'bayar'])->name('transaksiServis.bayar');

@@ -17,6 +17,7 @@ class TransaksiServis extends Model
     protected $primaryKey = 'id_service';
     protected $keyType = 'string';
     public $incrementing = false;
+
     protected static function boot()
     {
         parent::boot();
@@ -31,9 +32,10 @@ class TransaksiServis extends Model
                 $nextIdNumber = $lastId + 1;
             }
 
-            $transaksiServis->id_jasa = 'TSV' . $nextIdNumber;
+            $transaksiServis->id_service = 'TSV' . $nextIdNumber; // Use id_service instead of id_jasa
         });
     }
+
     protected $fillable = [
         'id_laptop',
         'id_teknisi',
@@ -42,13 +44,7 @@ class TransaksiServis extends Model
         'status_bayar',
         'harga_total_transaksi_servis'
     ];
-    protected $dates = [
-        'tanggal_masuk',
-    ];
-    protected $casts = [
-        'id_service' => 'integer',
-        'tanggal_masuk' => 'datetime',
-    ];
+
     public function teknisi()
     {
         return $this->belongsTo(Teknisi::class, 'id_teknisi', 'id_teknisi');
@@ -70,7 +66,7 @@ class TransaksiServis extends Model
     {
         return $this->belongsTo(Laptop::class, 'id_laptop', 'id_laptop');
     }
-    
+
     public function detailTransaksiServis()
     {
         return $this->hasMany(DetailTransaksiServis::class, 'id_service', 'id_service');

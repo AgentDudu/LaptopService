@@ -37,6 +37,6 @@ class Pelanggan extends Model
     ];
     public function laptop()
     {
-        return $this->hasMany(Laptop::class);
+        return $this->hasMany(Laptop::class, 'id_pelanggan');
     }
 }
