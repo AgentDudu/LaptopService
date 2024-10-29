@@ -17,6 +17,11 @@ return new class extends Migration
             $table->foreign('id_laptop')->references('id_laptop')->on('laptop')->onDelete('cascade');
             $table->string('id_teknisi');
             $table->foreign('id_teknisi')->references('id_teknisi')->on('teknisi')->onDelete('cascade');
+            $table->string('id_service')->primary();
+            $table->string('id_laptop');
+            $table->foreign('id_laptop')->references('id_laptop')->on('laptop')->onDelete('cascade');
+            $table->string('id_teknisi');
+            $table->foreign('id_teknisi')->references('id_teknisi')->on('teknisi')->onDelete('cascade');
             $table->date('tanggal_masuk');
             $table->date('tanggal_keluar');
             $table->string('status_bayar', 50);

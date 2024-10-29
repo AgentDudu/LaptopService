@@ -24,6 +24,8 @@ return new class extends Migration
             $table->date('akhir_garansi');
             $table->integer('subtotal_servis');
             $table->integer('subtotal_sparepart');
+            $table->integer('subtotal_servis');
+            $table->integer('subtotal_sparepart');
             $table->timestamps();
         });
     }

@@ -50,4 +50,5 @@ class Teknisi extends Authenticatable
     {
         return 'nohp_teknisi';
     }
+    
 }

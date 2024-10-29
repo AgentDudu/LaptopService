@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreign('id_teknisi')->references('id_teknisi')->on('teknisi')->onDelete('cascade');
             $table->date('tanggal_jual');
             $table->integer('harga_total_transaksi_sparepart');
+            $table->integer('harga_total_transaksi_sparepart');
             $table->timestamps();
         });
     }

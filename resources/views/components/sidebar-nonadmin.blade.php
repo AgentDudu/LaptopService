@@ -3,6 +3,7 @@
         .nav-link:hover, .nav-link.active, .nav-link-button:hover, .nav-link-button.active {
             background-color: rgba(255, 255, 255, 0.2); 
         }
+
         .bg-custom {
             background-color: rgba(255, 255, 255, 0.2);
         }
@@ -11,9 +12,11 @@
             font-size: 1rem; 
             padding: 0.6rem 1.25rem; 
         }
+
         .nav-link:visited {
             color: white !important; 
         }
+
         .nav-link-button {
             background-color: transparent;
             border: none;
@@ -21,9 +24,11 @@
             width: 100%;
             font-weight: bold; 
         }
+
         .bi-chevron-right {
             transition: transform 0.3s ease;
         }
+
         .bi-chevron-right.rotate {
             transform: rotate(90deg);
         }
@@ -69,6 +74,7 @@
                             @include('components.icons.svg-transSparepart')
                             Sparepart
                         </a>
+                    </li>
                     </li>
                 </ul>
             </div>
@@ -126,17 +132,13 @@
 
         // Rotate the arrow
         const arrow = element.querySelector('.bi-chevron-right');
-        if (submenu.classList.contains('show')) {
-            arrow.classList.add('rotate');
-        } else {
-            arrow.classList.remove('rotate');
-        }
+        arrow.classList.toggle('rotate', !isCollapsed);
     }
 
     // Load the state of the submenus from local storage
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const submenus = ['transaksi-submenu', 'database-submenu'];
-        submenus.forEach(function(id) {
+        submenus.forEach(function (id) {
             const submenu = document.getElementById(id);
             const isOpen = localStorage.getItem(id) === 'true';
             if (isOpen) {

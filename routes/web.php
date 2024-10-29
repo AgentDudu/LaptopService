@@ -1,5 +1,14 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PemilikController;
+use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SparepartController;
+use App\Http\Controllers\TransaksiSparepartController;
+use App\Http\Controllers\TransaksiServisController;
+use App\Http\Controllers\LaptopController;
+use App\Http\Controllers\PelangganController;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TeknisiController;

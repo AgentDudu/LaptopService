@@ -4,65 +4,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service Transactions</title>
+    <title>Transaksi Sparepart</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        table.table-bordered th {
+            background-color: #D7FFC2;
+            color: black;
+        }
+    </style>
 </head>
 
 <body>
     <div class="main-container" style="display: flex; background-color: #067D40;">
-        <!-- Sidebar -->
-        <div class="sidebar text-white" style="width: 260px; background-color: #067D40;">
-            @include('components.sidebar')
+        <div class="sidebar text-white">
+            @include('pemilik.sidebar')
         </div>
 
         <!-- Main Content -->
-        <main class="content" style="flex: 1; padding: 20px; margin: 30px 30px 30px 0; background-color: #F8F9FA; border-radius: 20px;">
-            <h3><span style="color: black;">Service Transactions</span></h3>
+        <main class="content"
+            style="flex: 1; padding: 20px; margin: 30px 30px 30px 0; background-color: #F8F9FA; border-radius: 20px;">
+            <h3><span style="color: black;">Transaksi Sparepart</span></h3>
             <hr>
-            <a href="{{ route('service_transactions.create') }}" class="btn btn-primary mb-3">Create Service Transaction</a>
+
+            <a href="{{ route('transaksi_sparepart.create') }}" class="btn btn-primary mb-3">Tambah Transaksi
+                Sparepart</a>
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Invoice Number</th>
-                        <th>Technician</th>
-                        <th>Customer</th>
-                        <th>Laptop</th>
-                        <th>Total Price</th>
-                        <th>Entry Date</th>
-                        <th>Takeout Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>No. Faktur</th>
+                        <th>Teknisi</th>
+                        <th>Nama Pelanggan</th>
+                        <th>Tanggal</th>
+                        <th>Jenis Sparepart</th>
+                        <th>Harga Sparepart</th>
+                        <th>Jumlah</th>
+                        <th>Harga Total</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($service_transactions as $transaction)
-                    <tr data-transaction-id="{{ $transaction->transaction_id }}">
-                        <td>{{ $transaction->invoice_number }}</td>
-                        <td>{{ $transaction->technician->name }}</td>
-                        <td>{{ $transaction->customer->customer_name }}</td>
-                        <td>{{ $transaction->laptop->laptop_brand }}</td>
-                        <td>Rp {{ number_format($transaction->total_price, 2, ',', '.') }}</td>
-                        <td>{{ $transaction->entry_date }}</td>
-                        <td>{{ $transaction->takeout_date }}</td>
-                        <td>{{ $transaction->status }}</td>
-                        <td class="actions-column">
-                            @if($transaction->status == 'pending')
-                            <a href="{{ route('service_transactions.edit', $transaction->transaction_id) }}" class="btn btn-sm btn-warning">Edit</a>
-                            <button class="btn btn-sm btn-success pay-button" data-bs-toggle="modal" data-bs-target="#payModal" data-transaction="{{ $transaction }}">Pay</button>
-                            @elseif($transaction->status == 'completed')
-                            <a href="{{ route('service_transactions.show', $transaction->transaction_id) }}" class="btn btn-sm btn-info">View</a>
-                            @endif
-                            <form action="{{ route('service_transactions.destroy', $transaction->transaction_id) }}" method="POST" style="display:inline-block;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
+                    @foreach($transaksi_sparepart as $transaksi_sp)
+                        @foreach($transaksi_sp->detail_transaksi_sparepart as $detail)
+                            <tr data-transaction-id="{{ $transaksi_sp->id_transaksi_sparepart }}">
+                                <td>{{ $transaksi_sp->id_transaksi_sparepart }}</td>
+                                <td>{{ $transaksi_sp->teknisi->nama_teknisi }}</td>
+                                <td>{{ $transaksi_sp->pelanggan->nama_pelanggan }}</td>
+                                <td>{{ $transaksi_sp->tanggal_jual }}</td>
+                                <td>{{ $detail->sparepart->jenis_sparepart ?? 'N/A' }}</td>
+                                <td>Rp {{ number_format($detail->sparepart->harga_sparepart ?? 0, 2, ',', '.') }}</td>
+                                <td>{{ $detail->jumlah_sparepart_terjual }}</td>
+                                <td>Rp {{ number_format($transaksi_sp->harga_total_transaksi_sparepart, 2, ',', '.') }}</td>
+                                <td class="actions-column">
+                                    @if($transaksi_sp->status == 'pending')
+                                        <a href="{{ route('transaksi_sparepart.edit', $transaksi_sp->id_transaksi_sparepart) }}"
+                                            class="btn btn-sm btn-warning">Edit</a>
+                                        <button class="btn btn-sm btn-success pay-button" data-bs-toggle="modal"
+                                            data-bs-target="#payModal"
+                                            data-transaction="{{ json_encode($transaksi_sp) }}">Pay</button>
+                                    @elseif($transaksi_sp->status == 'completed')
+                                        <a href="{{ route('transaksi_sparepart.show', $transaksi_sp->id_transaksi_sparepart) }}"
+                                            class="btn btn-sm btn-info">View</a>
+                                    @endif
+                                    <form action="{{ route('transaksi_sparepart.destroy', $transaksi_sp->id_transaksi_sparepart) }}" method="POST"
+                                        style="display:inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Are you sure?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
                     @endforeach
                 </tbody>
+
             </table>
         </main>
     </div>
@@ -90,7 +107,8 @@
                             <label for="change_amount" class="form-label">Kembalian</label>
                             <p class="form-control-static" id="change_amount">Rp. 0</p>
                         </div>
-                        <div class="alert alert-danger d-none" id="warning-message">Pembayaran kurang dari total yang harus dibayar!</div>
+                        <div class="alert alert-danger d-none" id="warning-message">Pembayaran kurang dari total yang
+                            harus dibayar!</div>
                         <button type="submit" class="btn btn-primary" id="pay_button">Bayar</button>
                     </form>
                 </div>
@@ -109,9 +127,9 @@
             modal.find('.modal-body #change_amount').text('Rp. 0');
             modal.find('.modal-body #warning-message').addClass('d-none');
 
-            var formAction = "{{ url('service_transactions') }}/" + transaction.transaction_id + "/pay";
+            var formAction = "{{ url('transaksi_sparepart') }}/" + transaction.id + "/pay";
             modal.find('.modal-body #paymentForm').attr('action', formAction);
-            modal.find('.modal-body #paymentForm').data('transaction-id', transaction.transaction_id);
+            modal.find('.modal-body #paymentForm').data('transaction-id', transaction.id);
         });
 
         $('#payment_amount').on('input', function () {
@@ -145,14 +163,14 @@
                         $('#payModal').modal('hide');
                         var row = $('tr[data-transaction-id="' + transactionId + '"]');
                         row.find('.actions-column').html(
-                            '<a href="{{ url("service_transactions") }}/view/' + transactionId + '" class="btn btn-sm btn-info">View</a>' +
-                            '<form action="{{ url("service_transactions") }}/' + transactionId + '" method="POST" style="display:inline-block;">' +
+                            '<a href="{{ url("transaksi_sparepart") }}/view/' + transactionId + '" class="btn btn-sm btn-info">View</a>' +
+                            '<form action="{{ url("transaksi_sparepart") }}/' + transactionId + '" method="POST" style="display:inline-block;">' +
                             '@csrf' +
                             '@method("DELETE")' +
                             '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm("Are you sure?")">Delete</button>' +
                             '</form>'
                         );
-                        row.find('td:nth-child(8)').text('completed');
+                        row.find('td:nth-child(7)').text('completed');
                     },
                     error: function (xhr, status, error) {
                         alert('Payment failed. Please try again.');
@@ -164,7 +182,7 @@
         });
 
         $('#payModal').on('hidden.bs.modal', function () {
-            window.location.href = "{{ route('service_transactions.index') }}";
+            window.location.href = "{{ route('transaksi_sparepart.index') }}";
         });
     </script>
 </body>

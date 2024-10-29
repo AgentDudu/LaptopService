@@ -15,11 +15,11 @@
                 <h5>Pembayaran</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('service_transactions.processPayment', $transaction->transaction_id) }}" method="POST">
+                <form action="{{ route('transaksi_sparepart.jual', $jual_sparepart->id_transaksi_sparepart) }}" method="POST">
                     @csrf
                     <div class="mb-3">
                         <label for="total_amount" class="form-label">Harus Dibayar</label>
-                        <p class="form-control-static">Rp. {{ number_format($transaction->total_price, 0, ',', '.') }}</p>
+                        <p class="form-control-static">Rp. {{ number_format($jual_sparepart->harga_total_transaksi_sparepart, 0, ',', '.') }}</p>
                     </div>
                     <div class="mb-3">
                         <label for="payment_amount" class="form-label">Pembayaran</label>
@@ -40,7 +40,7 @@
     <script>
         $(document).ready(function() {
             $('#payment_amount').on('input', function() {
-                var total = {{ $transaction->total_price }};
+                var total = {{ $jual_sparepart->harga_total_transaksi_sparepart }};
                 var payment = $(this).val().replace(/[^0-9]/g, '');
                 var change = payment - total;
 
