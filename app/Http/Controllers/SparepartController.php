@@ -3,18 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
-class SparepartController extends Controller
-{
-    //
-}
-
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\Sparepart;
+use App\Models\Sparepart\Sparepart;
 
 
 class SparepartController extends Controller

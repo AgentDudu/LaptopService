@@ -4,6 +4,8 @@ namespace App\Models\Sparepart;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TransaksiSparepart\TransaksiJualSparepart; // Namespace untuk DetailTransaksiSparepart
+use Illuminate\Support\Str;
 
 class Sparepart extends Model
 {
@@ -18,12 +20,13 @@ class Sparepart extends Model
         parent::boot();
 
         static::creating(function ($sparepart) {
-            $latestSparepart = static::latest('id_sparepart')->first();
-
+            $latestSparepart = static::pluck('id_sparepart')->toArray();
             if (!$latestSparepart) {
                 $nextIdNumber = 1;
             } else {
-                $lastId = (int) str_replace('SP', '', $latestSparepart->id_sparepart);
+                $lastId = max(array_map(function($idSparepart){
+                    return (int)Str::replaceFirst('SP', '', $idSparepart);
+                }, $latestSparepart));
                 $nextIdNumber = $lastId + 1;
             }
 
@@ -36,4 +39,11 @@ class Sparepart extends Model
         'model_sparepart',
         'harga_sparepart'
     ];
+
+    
+    public function TransaksiJualSparepart()
+    {
+        return $this->hasMany(TransaksiJualSparepart::class, 'id_sparepart');
+    }
+    
 }

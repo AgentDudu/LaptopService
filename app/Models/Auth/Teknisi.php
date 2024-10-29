@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\TransaksiServis\Service;
+use App\Models\TransaksiSparepart\TransaksiJualSparepart; // Namespace untuk DetailTransaksiSparepart
 
 class Teknisi extends Model
 {
@@ -45,4 +47,16 @@ class Teknisi extends Model
     protected $casts = [
         'password' => 'hashed'
     ];
+
+    public function service()
+    {
+        return $this->hasMany(Service::class, 'id_teknisi');
+    }
+
+    public function jualSparepart()
+    {
+        return $this->hasMany(TransaksiJualSparepart::class, 'id_teknisi');
+    }
+
+
 }

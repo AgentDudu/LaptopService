@@ -5,6 +5,7 @@ namespace App\Models\Pelanggan;
 use App\Models\Laptop\Laptop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TransaksiSparepart\TransaksiJualSparepart;
 
 class Pelanggan extends Model
 {
@@ -37,6 +38,11 @@ class Pelanggan extends Model
     ];
     public function laptop()
     {
-        return $this->hasMany(Laptop::class);
-    }
+            return $this->hasMany(Laptop::class, 'id_pelanggan');
+        }
+    
+        public function jualSparepart()
+        {
+            return $this->hasMany(TransaksiJualSparepart::class, 'id_pelanggan');
+        }
 }

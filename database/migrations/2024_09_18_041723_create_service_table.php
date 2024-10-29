@@ -12,12 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('service', function (Blueprint $table) {
-            $table->string('id_service')->primary();
-            $table->string('id_laptop');
-            $table->foreign('id_laptop')->references('id_laptop')->on('laptop')->onDelete('cascade');
-            $table->string('id_teknisi');
-            $table->foreign('id_teknisi')->references('id_teknisi')->on('teknisi')->onDelete('cascade');
-            $table->string('id_service')->primary();
+            $table->string('id_service')->primary();  // Hanya satu primary key
             $table->string('id_laptop');
             $table->foreign('id_laptop')->references('id_laptop')->on('laptop')->onDelete('cascade');
             $table->string('id_teknisi');

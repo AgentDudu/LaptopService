@@ -64,14 +64,14 @@
             <div id="transaksi-submenu" class="collapse">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                     <li class="nav-item">
-                        <a href="{{ route('servis.index') }}" class="nav-link ps-4 {{ Route::is('servis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                        <a href="{{ route('transaksi_servis.index') }}" class="nav-link ps-4 {{ Route::is('servis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                             @include('components.icons.svg-transServis')
                             Servis
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link ps-4 {{ Route::is('sparepart.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
-                            @include('components.icons.svg-transSparepart')
+                    <a href="{{ route('transaksi_sparepart.index') }}" class="nav-link ps-4 {{ Route::is('sparepart.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                     @include('components.icons.svg-transSparepart')
                             Sparepart
                         </a>
                     </li>

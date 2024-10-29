@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Teknisi;
+use App\Models\Auth\Teknisi;
 use App\Http\Requests\RegisterRequest;  // Import the custom request
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;

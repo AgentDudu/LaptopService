@@ -76,70 +76,70 @@
             <div id="transaksi-submenu" class="collapse">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                     <li class="nav-item">
-                        <a href="{{ route('servis.index') }}"
+                        <a href="{{ route('transaksi_servis.index') }}"
                             class="nav-link ps-4 {{ Route::is('servis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                             @include('components.icons.svg-transServis')
                             Servis
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#"
+                        <a href="{{ route('transaksi_sparepart.index') }}"
                             class="nav-link ps-4 {{ Route::is('sparepart.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                             @include('components.icons.svg-transSparepart')
                             Sparepart
                         </a>
                     </li>
-                    </li>
-                </ul>
-            </div>
-        </li>
-        <li>
-            <a href="#database-submenu"
-                class="nav-link text-white d-flex justify-content-between align-items-center {{ Route::is('database.*') ? 'inactive' : '' }}"
-                onclick="toggleCollapse('database-submenu', this)">
-                <span>
-                    @include('components.icons.svg-database')
-                    Database
-                </span>
-                <i class="bi bi-chevron-right"></i>
-            </a>
-            <div id="database-submenu" class="collapse">
-                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                    <li><a href="{{ route('teknisi.index') }}"
-                            class="nav-link text-white ps-4 {{ Route::is('teknisi.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
-                            @include('components.icons.svg-teknisi')
-                            Teknisi</a></li>
-                    <li><a href="{{ route('pelanggan.index') }}"
-                            class="nav-link text-white ps-4 {{ Route::is('customers.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
-                            @include('components.icons.svg-pelanggan')
-                            Pelanggan</a></li>
-                    <li><a href="{{ route('laptop.index') }}"
-                            class="nav-link text-white ps-4 {{ Route::is('laptops.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
-                            @include('components.icons.svg-laptop')
-                            Laptop</a></li>
-                    <li><a href="{{ route('jasaServis.index') }}"
-                            class="nav-link text-white ps-4 {{ Route::is('jasaServis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
-                            @include('components.icons.svg-jasaServis')
-                            Jasa Servis</a></li>
-                </ul>
-            </div>
-        </li>
-        <li>
-            <a href="#" class="nav-link text-white inactive">
-                @include('components.icons.svg-laporan')
-                Laporan Transaksi
-            </a>
-        </li>
-        <li>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="nav-link nav-link-button {{ Route::is('logout') ? 'active' : '' }}">
-                    @include('components.icons.svg-logout')
-                    Logout
-                </button>
-            </form>
         </li>
     </ul>
+</div>
+</li>
+<li>
+    <a href="#database-submenu"
+        class="nav-link text-white d-flex justify-content-between align-items-center {{ Route::is('database.*') ? 'inactive' : '' }}"
+        onclick="toggleCollapse('database-submenu', this)">
+        <span>
+            @include('components.icons.svg-database')
+            Database
+        </span>
+        <i class="bi bi-chevron-right"></i>
+    </a>
+    <div id="database-submenu" class="collapse">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <li><a href="{{ route('teknisi.index') }}"
+                    class="nav-link text-white ps-4 {{ Route::is('teknisi.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                    @include('components.icons.svg-teknisi')
+                    Teknisi</a></li>
+            <li><a href="{{ route('pelanggan.index') }}"
+                    class="nav-link text-white ps-4 {{ Route::is('customers.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                    @include('components.icons.svg-pelanggan')
+                    Pelanggan</a></li>
+            <li><a href="{{ route('laptop.index') }}"
+                    class="nav-link text-white ps-4 {{ Route::is('laptops.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                    @include('components.icons.svg-laptop')
+                    Laptop</a></li>
+            <li><a href="{{ route('jasaServis.index') }}"
+                    class="nav-link text-white ps-4 {{ Route::is('jasaServis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                    @include('components.icons.svg-jasaServis')
+                    Jasa Servis</a></li>
+        </ul>
+    </div>
+</li>
+<li>
+    <a href="#" class="nav-link text-white inactive">
+        @include('components.icons.svg-laporan')
+        Laporan Transaksi
+    </a>
+</li>
+<li>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="nav-link nav-link-button {{ Route::is('logout') ? 'active' : '' }}">
+            @include('components.icons.svg-logout')
+            Logout
+        </button>
+    </form>
+</li>
+</ul>
 </div>
 
 <!-- Include Bootstrap JS -->
@@ -169,9 +169,9 @@
     }
 
     // Load the state of the submenus from local storage
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const submenus = ['transaksi-submenu', 'database-submenu'];
-        submenus.forEach(function(id) {
+        submenus.forEach(function (id) {
             const submenu = document.getElementById(id);
             const isOpen = localStorage.getItem(id) === 'true';
             if (isOpen) {

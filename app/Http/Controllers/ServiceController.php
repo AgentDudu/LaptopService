@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Service;
-use App\Models\Laptop;
-use App\Models\Teknisi;
+use App\Models\TransaksiServis\Service;
+use App\Models\Laptop\Laptop;
+use App\Models\Auth\Teknisi;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller

@@ -67,8 +67,13 @@
 
 <body>
     <div class="main-container">
+        <!-- Sidebar -->
         <div class="sidebar text-white">
-            @include('pemilik.sidebar')
+            @if (Auth::user()->status === 'Pegawai')
+                <x-sidebar-nonadmin />
+            @else
+                <x-sidebar-admin />
+            @endif
         </div>
         <main class="content">
             <h3>Tambah Transaksi Sparepart</h3>
@@ -81,8 +86,8 @@
                             <td>No. Faktur</td>
                             <td>:</td>
                             <td>
-                                <input type="text" name="id_transaksi_sparepart" value="{{ $noFaktur }}" readonly
-                                    class="form-control" placeholder="000001">
+                                <input type="text" name="id_transaksi_sparepart" value="{{ $newId }}" readonly
+                                    class="form-control" placeholder="TSP001">
                             </td>
                             <td width="600px"></td>
                             <td>Total Transaksi</td>
@@ -118,19 +123,17 @@
                     <h5 class="pelanggan-label">Pelanggan</h5>
                     <table class="no-border">
                         <tr>
-                            <td>Nama Pelanggan</td>
+                            <td>Pelanggan</td>
                             <td>:</td>
                             <td>
-                                <input list="pelangganList" id="id_pelanggan" name="id_pelanggan" class="form-control"
-                                    required>
-                                <datalist id="pelangganList">
+                                <select id="id_pelanggan" name="id_pelanggan" class="form-control" required>
                                     <option value="">Pilih Pelanggan</option>
                                     @foreach($pelanggan as $pelangganItem)
-                                        <option value="{{ $pelangganItem->nama_pelanggan }}">
+                                        <option value="{{ $pelangganItem->id_pelanggan }}">
                                             {{ $pelangganItem->nama_pelanggan }}
                                         </option>
                                     @endforeach
-                                </datalist>
+                                </select>
                             </td>
                         </tr>
 
@@ -161,8 +164,8 @@
                                 <td><input type="text" class="form-control" id="jenis_sparepart"></td>
                                 <td><input type="text" class="form-control" id="merek_sparepart"></td>
                                 <td><input type="text" class="form-control" id="model_sparepart"></td>
-                                <td><input type="number" class="form-control sparepart-jumlah_sparepart"
-                                        id="jumlah_sparepart"></td>
+                                <td><input type="number" class="form-control sparepart-jumlah_sparepart_terjual"
+                                        id="jumlah_sparepart_terjual"></td>
                                 <td><input type="text" class="form-control sparepart-harga_sparepart"
                                         id="harga_sparepart"></td>
                                 <td>
@@ -175,7 +178,7 @@
                     <div>
                         <button type="reset" class="btn btn-secondary me-2">Reset</button>
                         <button type="button" class="btn btn-warning me-2" id=jualButton>Jual</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-primary" id="submit">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -186,17 +189,17 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.getElementById('id_pelanggan').addEventListener('input', async function () {
-            const namaPelanggan = this.value;
+        document.getElementById('id_pelanggan').addEventListener('change', async function () {
+            const idPelanggan = this.value; // Mengambil nilai dari select (id pelanggan)
             const nohpField = document.getElementById('nohp_pelanggan');
 
-            if (!namaPelanggan) {
+            if (!idPelanggan) {
                 nohpField.value = "";
                 return;
             }
 
             try {
-                const response = await fetch(`/get-nohp-pelanggan?nama_pelanggan=${namaPelanggan}`);
+                const response = await fetch(`/pelanggan/get/${idPelanggan}`);
                 const data = await response.json();
                 nohpField.value = data.nohp_pelanggan || "";
             } catch (error) {
@@ -207,39 +210,21 @@
 
 
         $(document).ready(function () {
-            $('#id_pelanggan').on('input', function () {
-                var nama_pelanggan = $(this).val();
-
-                // Lakukan AJAX request untuk mendapatkan nomor HP pelanggan
-                $.ajax({
-                    url: '/pelanggan/get/' + nama_pelanggan,
-                    method: 'GET',
-                    success: function (response) {
-                        if (response.nohp_pelanggan) {
-                            $('#nohp_pelanggan').val(response.nohp_pelanggan);
-                        } else {
-                            $('#nohp_pelanggan').val(''); // Kosongkan jika tidak ditemukan
-                        }
-                    }
-                });
-            });
-        });
-        $(document).ready(function () {
             var sparepartIndex = 0;
 
             // Fungsi untuk menghitung total harga secara dinamis
             function calculateTotalPrice() {
                 var total = 0;
                 $('#sparepartsTable tbody tr').each(function () {
-                    var jumlah_sparepart = parseFloat($(this).find('.sparepart-jumlah_sparepart').val()) || 0;
+                    var jumlah_sparepart_terjual = parseFloat($(this).find('.sparepart-jumlah_sparepart_terjual').val()) || 0;
                     var harga_sparepart = parseFloat($(this).find('.sparepart-harga_sparepart').val().replace(/\./g, '').replace(',', '.')) || 0; // Menghapus format
-                    total += jumlah_sparepart * harga_sparepart;
+                    total += jumlah_sparepart_terjual * harga_sparepart;
                 });
                 $('#harga_total_transaksi_sparepart').val(total.toLocaleString('id-ID'));
             }
 
             // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
-            $(document).on('input', '.sparepart-jumlah_sparepart, .sparepart-harga_sparepart', function () {
+            $(document).on('input', '.sparepart-jumlah_sparepart_terjual, .sparepart-harga_sparepart', function () {
                 calculateTotalPrice(); // Memanggil fungsi perhitungan total
             });
 
@@ -248,23 +233,23 @@
                 var jenis_sparepart = $('#jenis_sparepart').val();
                 var merek_sparepart = $('#merek_sparepart').val();
                 var model_sparepart = $('#model_sparepart').val();
-                var jumlah_sparepart = parseFloat($('#jumlah_sparepart').val());
+                var jumlah_sparepart_terjual = parseFloat($('#jumlah_sparepart_terjual').val());
                 var harga_sparepart = parseFloat($('#harga_sparepart').val().replace(/\./g, '').replace(',', '.'));
 
-                if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart && !isNaN(harga_sparepart)) {
+                if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !isNaN(harga_sparepart)) {
                     var newRow = `
                         <tr>
                             <td><input type="text" name="spareparts[${sparepartIndex}][jenis_sparepart]" class="form-control" value="${jenis_sparepart}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][merek_sparepart]" class="form-control" value="${merek_sparepart}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][model_sparepart]" class="form-control" value="${model_sparepart}" readonly></td>
-                            <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart]" class="form-control sparepart-jumlah_sparepart" value="${jumlah_sparepart}" readonly></td>
+                            <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart_terjual]" class="form-control sparepart-jumlah_sparepart_terjual" value="${jumlah_sparepart_terjual}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][harga_sparepart]" class="form-control sparepart-harga_sparepart" value="${harga_sparepart}" readonly></td>
                             <td><button type="button" class="btn btn-danger removeSparepartButton">Hapus</button></td>
                         </tr>`;
 
                     $('#sparepartsTable tbody').append(newRow);
                     sparepartIndex++;
-                    $('#jenis_sparepart, #merek_sparepart, #model_sparepart, #jumlah_sparepart, #harga_sparepart').val('');
+                    $('#jenis_sparepart, #merek_sparepart, #model_sparepart, #jumlah_sparepart_terjual, #harga_sparepart').val('');
                     calculateTotalPrice();
                 } else {
                     alert("Semua kolom sparepart harus diisi!");
@@ -283,17 +268,17 @@
                 var jenis_sparepart = $('#jenis_sparepart').val();
                 var merek_sparepart = $('#merek_sparepart').val();
                 var model_sparepart = $('#model_sparepart').val();
-                var jumlah_sparepart = parseFloat($('#jumlah_sparepart').val());
+                var jumlah_sparepart_terjual = parseFloat($('#jumlah_sparepart_terjual').val());
                 var harga_sparepart = parseFloat($('#harga_sparepart').val().replace(/\./g, '').replace(',', '.'));
 
                 // Jika ada data sparepart yang belum ditambahkan
-                if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart && !isNaN(harga_sparepart)) {
+                if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !isNaN(harga_sparepart)) {
                     var newRow = `
                         <tr>
                             <td><input type="text" name="spareparts[${sparepartIndex}][jenis_sparepart]" class="form-control" value="${jenis_sparepart}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][merek_sparepart]" class="form-control" value="${merek_sparepart}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][model_sparepart]" class="form-control" value="${model_sparepart}" readonly></td>
-                            <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart]" class="form-control sparepart-jumlah_sparepart" value="${jumlah_sparepart}" readonly></td>
+                            <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart_terjual]" class="form-control sparepart-jumlah_sparepart_terjual" value="${jumlah_sparepart_terjual}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][harga_sparepart]" class="form-control sparepart-harga_sparepart" value="${harga_sparepart}" readonly></td>
                         </tr>`;
 

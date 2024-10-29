@@ -15,8 +15,11 @@ class PelangganController extends Controller
 
     public function create()
     {
-        return view('pelanggan.create');
+       
+        $pelanggan = Pelanggan::all(); // Mengambil semua data pelanggan
+        return view('pelanggan.create', compact('pelanggan')); // Mengirimkan data ke view
     }
+    
 
     public function store(Request $request)
     {
@@ -81,4 +84,10 @@ class PelangganController extends Controller
             return redirect()->route('pelanggan.index');
         }
     }
+    public function getNoHp($id_pelanggan)
+    {
+        $pelanggan = Pelanggan::where('id_pelanggan', $id_pelanggan)->first();
+        return response()->json(['nohp_pelanggan' => $pelanggan ? $pelanggan->nohp_pelanggan : null]);
+    }
+    
 }
