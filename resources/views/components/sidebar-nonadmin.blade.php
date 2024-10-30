@@ -1,20 +1,20 @@
 <div class="d-flex flex-column flex-shrink-0 p-3 text-white" style="width: 250px; height: 100vh; background-color: #067D40">
     <style>
         .nav-link:hover, .nav-link.active, .nav-link-button:hover, .nav-link-button.active {
-            background-color: rgba(255, 255, 255, 0.2); 
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
         .bg-custom {
             background-color: rgba(255, 255, 255, 0.2);
         }
         .nav-link, .nav-link-button {
-            color: white !important; 
-            font-size: 1rem; 
-            padding: 0.6rem 1.25rem; 
+            color: white !important;
+            font-size: 1rem;
+            padding: 0.6rem 1.25rem;
         }
 
         .nav-link:visited {
-            color: white !important; 
+            color: white !important;
         }
 
         .nav-link-button {
@@ -22,7 +22,7 @@
             border: none;
             text-align: left;
             width: 100%;
-            font-weight: bold; 
+            font-weight: bold;
         }
 
         .bi-chevron-right {
@@ -33,9 +33,9 @@
             transform: rotate(90deg);
         }
         .nav-link svg, .nav-link-button svg {
-            width: 24px; 
-            height: 24px; 
-            margin-right: 8px; 
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
         }
     </style>
 
@@ -64,7 +64,7 @@
             <div id="transaksi-submenu" class="collapse">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                     <li class="nav-item">
-                        <a href="{{ route('transaksi_servis.index') }}" class="nav-link ps-4 {{ Route::is('servis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                        <a href="{{ route('transaksiServis.index') }}" class="nav-link ps-4 {{ Route::is('transaksiServis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                             @include('components.icons.svg-transServis')
                             Servis
                         </a>

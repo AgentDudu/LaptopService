@@ -41,15 +41,41 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Teknisi-------------------------------------------------------------------------------------------
-Route::resource('teknisi', TeknisiController::class);
+Route::get('/teknisi', [TeknisiController::class, 'index'])->name('teknisi.index');
+Route::get('/teknisi/create', [TeknisiController::class, 'create'])->name('teknisi.create');
+Route::post('/teknisi', [TeknisiController::class, 'store'])->name('teknisi.store');
+Route::get('/teknisi/{id}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
+Route::put('/teknisi/{id}', [TeknisiController::class, 'update'])->name('teknisi.update');
+Route::delete('/teknisi/{id}', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');
 
 // Pelanggan-----------------------------------------------------------------------------------------
-Route::resource('pelanggan', PelangganController::class);
+Route::get('/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
+Route::get('/pelanggan/create', [PelangganController::class, 'create'])->name('pelanggan.create');
+Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
+Route::get('/pelanggan/{id}/edit', [PelangganController::class, 'edit'])->name('pelanggan.edit');
+Route::put('/pelanggan/{id}', [PelangganController::class, 'update'])->name('pelanggan.update');
+Route::delete('/pelanggan/{id}', [PelangganController::class, 'destroy'])->name('pelanggan.destroy');
 
 // Laptop--------------------------------------------------------------------------------------------
-Route::resource('laptop', LaptopController::class);
+Route::get('/laptop', [LaptopController::class, 'index'])->name('laptop.index');
+Route::get('/laptop/create', [LaptopController::class, 'create'])->name('laptop.create');
+Route::post('/laptop', [LaptopController::class, 'store'])->name('laptop.store');
+Route::get('/laptop/{id}/edit', [LaptopController::class, 'edit'])->name('laptop.edit');
+Route::put('/laptop/{id}', [LaptopController::class, 'update'])->name('laptop.update');
+Route::delete('/laptop/{id}', [LaptopController::class, 'destroy'])->name('laptop.destroy');
 
 // Jasa Servis---------------------------------------------------------------------------------------
+Route::get('/jasaServis', [JasaServisController::class, 'index'])->name('jasaServis.index');
+Route::get('/jasaServis/create', [JasaServisController::class, 'create'])->name('jasaServis.create');
+Route::post('/jasaServis', [JasaServisController::class, 'store'])->name('jasaServis.store');
+Route::get('/jasaServis/{id}/edit', [JasaServisController::class, 'edit'])->name('jasaServis.edit');
+Route::put('/jasaServis/{id}', [JasaServisController::class, 'update'])->name('jasaServis.update');
+Route::delete('/jasaServis/{id}', [JasaServisController::class, 'destroy'])->name('jasaServis.destroy');
+
+// Resource--------------------------------------------------------------------------------------------
+Route::resource('teknisi', TeknisiController::class);
+Route::resource('pelanggan', PelangganController::class);
+Route::resource('laptop', LaptopController::class);
 Route::resource('jasaServis', JasaServisController::class);
 
 // Lain-lain (ini blm fix, hanya perlu dideklarasikan aja biar yg lain ga error)
@@ -57,19 +83,20 @@ Route::get('/servis', [ServisController::class, 'index'])->name('servis.index');
 
 // Protected Routes (routes that require authentication)
 Route::middleware(['auth'])->group(function () {
+    
+    // Modifikasi Route Servis untuk diarahkan ke transaksiServis
+    Route::get('/servis', function () {
+        return redirect()->route('transaksiServis.index');
+    })->name('transaksiServis.index');
+
 
     // Modifikasi Route Sparepart untuk diarahkan ke transaksi_sparepart
     Route::get('/sparepart', function () {
         return redirect()->route('transaksi_sparepart.index');
     })->name('transaksi_sparepart.index');
 
-    // Modifikasi Route Servis untuk diarahkan ke transaksi_servis
-    Route::get('/servis', function () {
-        return redirect()->route('transaksi_servis.index');
-    })->name('transaksi_servis.index');
-
     // Transaksi Routes
-    Route::resource('transaksi_servis', TransaksiServisController::class)->names('transaksi_servis');
+    Route::resource('transaksiServis', TransaksiServisController::class)->names('transaksiServis');
 
     // Untuk transaksi_sparepart, gunakan hanya satu resource route
     Route::resource('transaksi_sparepart', TransaksiSparepartController::class)

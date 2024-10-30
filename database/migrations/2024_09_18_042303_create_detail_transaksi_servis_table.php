@@ -16,10 +16,10 @@ return new class extends Migration
             $table->foreign('id_service')->references('id_service')->on('service')->onDelete('cascade');
             $table->string('id_jasa');
             $table->foreign('id_jasa')->references('id_jasa')->on('jasa_servis')->onDelete('cascade');
-            $table->string('id_sparepart');
+            $table->string('id_sparepart')->nullable();
             $table->foreign('id_sparepart')->references('id_sparepart')->on('sparepart')->onDelete('cascade');
             $table->integer('harga_transaksi_jasa_servis');
-            $table->integer('jumlah_sparepart_terpakai');
+            $table->integer('jumlah_sparepart_terpakai')->nullable();
             $table->integer('jangka_garansi_bulan');
             $table->date('akhir_garansi');
             $table->integer('subtotal_servis');

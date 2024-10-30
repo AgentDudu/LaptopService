@@ -4,6 +4,8 @@ namespace App\Models\TransaksiServis;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Sparepart\Sparepart;
+
 
 class DetailTransaksiServis extends Model
 {
@@ -22,4 +24,17 @@ class DetailTransaksiServis extends Model
         'subtotal_servis',
         'subtotal_sparepart'
     ];
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'id_service');
+    }
+    public function jasaServis()
+    {
+        return $this->belongsTo(JasaServis::class, 'id_jasa', 'id_jasa');
+    }
+    public function sparepart()
+    {
+        return $this->belongsTo(Sparepart::class, 'id_sparepart', 'id_sparepart');
+    }
+
 }

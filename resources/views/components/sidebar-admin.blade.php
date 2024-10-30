@@ -76,8 +76,8 @@
             <div id="transaksi-submenu" class="collapse">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                     <li class="nav-item">
-                        <a href="{{ route('transaksi_servis.index') }}"
-                            class="nav-link ps-4 {{ Route::is('servis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                        <a href="{{ route('transaksiServis.index') }}"
+                            class="nav-link ps-4 {{ Route::is('transaksiServis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                             @include('components.icons.svg-transServis')
                             Servis
                         </a>
