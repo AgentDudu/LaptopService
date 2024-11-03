@@ -349,7 +349,8 @@ use Illuminate\Support\Facades\Auth;
         const harusDibayarInput = document.getElementById('harusDibayar');
         const kembalianInput = document.getElementById('kembalian');
         const bayarButton = document.getElementById('bayarButton');
-        const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        const modalElement = document.getElementById('paymentModal');
+        const modal = new bootstrap.Modal(modalElement);
 
         pembayaranInput.addEventListener('input', function() {
             const pembayaran = parseFloat(pembayaranInput.value) || 0;
@@ -364,36 +365,50 @@ use Illuminate\Support\Facades\Auth;
             }
         });
 
-        bayarButton.addEventListener('click', function() {
+        bayarButton.addEventListener('click', function handlePayment() {
             const pembayaran = parseFloat(pembayaranInput.value) || 0;
             const harusDibayar = parseFloat(harusDibayarInput.value) || 0;
 
             if (pembayaran >= harusDibayar) {
-                // Send an AJAX request to update the transaction status
                 axios.post('/transaksiServis/bayar', {
                         id_service: '{{ $transaksiServis->id_service }}',
                         pembayaran: pembayaran
                     })
                     .then(function(response) {
                         if (response.data.success) {
-                            // Close the modal
-                            modal.hide();
+                            // Change Bayar button to Cetak Nota button
+                            bayarButton.innerHTML = 'Cetak Nota';
+                            bayarButton.classList.remove('btn-primary');
+                            bayarButton.classList.add('btn-warning');
 
-                            // Reload the page to reflect the updated status
-                            location.reload();
+                            // Calculate kembalian
+                            const kembalian = pembayaran - harusDibayar;
+
+                            // Remove the original click event listener
+                            bayarButton.removeEventListener('click', handlePayment);
+
+                            // Set a new click event for generating the invoice
+                            bayarButton.addEventListener('click', function generateInvoice() {
+                                window.location.href = '{{ route('transaksiServis.cetakNota', $transaksiServis->id_service) }}' +
+                                    '?pembayaran=' + encodeURIComponent(pembayaran) +
+                                    '&kembalian=' + encodeURIComponent(kembalian);
+                            });
                         } else {
-                            alert(response.data.message);
+                            alert('Pembayaran gagal, coba lagi.');
                         }
                     })
                     .catch(function(error) {
-                        console.error(error);
+                        console.error("Error during payment request: ", error);
                         alert('Terjadi kesalahan. Silakan coba lagi.');
                     });
             }
         });
+
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            location.reload();
+        });
     });
     </script>
-
 </body>
 
 </html>

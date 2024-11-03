@@ -11,7 +11,9 @@ use App\Models\Pelanggan\Pelanggan;
 use App\Models\TransaksiServis\Service;
 use App\Models\Auth\Teknisi;
 use App\Models\Laptop\Laptop;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
 class TransaksiServisController extends Controller
@@ -203,23 +205,64 @@ class TransaksiServisController extends Controller
     public function bayar(Request $request)
     {
         try {
-            // Find the service transaction
-            $transaksiServis = TransaksiServis::findOrFail($request->id_service);
+            Log::info('Processing bayar request', $request->all());
 
-            // Check if it's already paid
+            // Validate the request
+            $validatedData = $request->validate([
+                'id_service' => 'required|exists:service,id_service',
+                'pembayaran' => 'required|numeric|min:0',
+            ]);
+
+            Log::info('Validation passed', $validatedData);
+
+            // Retrieve the transaction
+            $transaksiServis = TransaksiServis::findOrFail($validatedData['id_service']);
+            Log::info('Found transaksiServis', ['id_service' => $validatedData['id_service']]);
+
+            // Check if already paid
             if ($transaksiServis->status_bayar === 'Sudah dibayar') {
                 return response()->json(['success' => false, 'message' => 'Transaksi sudah dibayar'], 400);
             }
 
-            // Update status to "Sudah dibayar"
+            // Update payment status
             $transaksiServis->update(['status_bayar' => 'Sudah dibayar']);
+            Log::info('Updated status_bayar to Sudah dibayar');
 
-            // Return a success response
             return response()->json(['success' => true, 'message' => 'Pembayaran berhasil']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error in bayar', ['errors' => $e->errors()]);
+            return response()->json(['success' => false, 'errors' => $e->errors()], 400);
         } catch (\Exception $e) {
-            // Handle error
+            Log::error('Error during bayar process', ['exception' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan'], 500);
         }
+    }
+
+    public function cetakNota($id)
+    {
+        // Fetch the service transaction details
+        $transaksiServis = TransaksiServis::with(['detailTransaksiServis.jasaServis', 'detailTransaksiServis.sparepart', 'pelanggan', 'laptop'])->findOrFail($id);
+
+        // Calculate total transaction price
+        $totalHarga = $transaksiServis->harga_total_transaksi_servis + $transaksiServis->detailTransaksiServis->sum('subtotal_sparepart');
+
+        // Retrieve pembayaran and kembalian from request if available, else set defaults
+        $pembayaran = request('pembayaran', $totalHarga); // Default to totalHarga if not set
+        $kembalian = request('kembalian', $pembayaran - $totalHarga); // Default to calculated difference
+
+        // Prepare data for the view
+        $data = [
+            'transaksiServis' => $transaksiServis,
+            'totalHarga' => $totalHarga,
+            'pembayaran' => $pembayaran,
+            'kembalian' => $kembalian,
+        ];
+
+        // Generate the PDF or display the invoice view
+        $pdf = \PDF::loadView('transaksiServis.invoice', $data);
+
+        // Return PDF download
+        return $pdf->download('invoice_' . $transaksiServis->id_service . '.pdf');
     }
 
     public function edit($id)
