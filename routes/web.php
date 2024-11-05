@@ -100,8 +100,4 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/pelanggan/get/{id_pelanggan}', [PelangganController::class, 'getNoHp']);
     Route::get('/transaksi_sparepart/jual/{id_transaksi_sparepart}', [TransaksiSparepartController::class, 'jual'])->name('transaksi_sparepart.jual');
-
-
 });
-
-   
