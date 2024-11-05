@@ -78,20 +78,14 @@ Route::resource('pelanggan', PelangganController::class);
 Route::resource('laptop', LaptopController::class);
 Route::resource('jasaServis', JasaServisController::class);
 
-// Lain-lain (ini blm fix, hanya perlu dideklarasikan aja biar yg lain ga error)
-Route::get('/servis', [ServisController::class, 'index'])->name('servis.index');
+// Transaksi Servis
+Route::resource('transaksiServis', TransaksiServisController::class);
+Route::post('/transaksiServis/bayar', [TransaksiServisController::class, 'bayar'])->name('transaksiServis.bayar');
+Route::get('/transaksiServis/{id}/cetakNota', [TransaksiServisController::class, 'cetakNota'])->name('transaksiServis.cetakNota');
 
-// Protected Routes (routes that require authentication)
-Route::middleware(['auth'])->group(function () {
-    
-    // Modifikasi Route Servis untuk diarahkan ke transaksiServis
-    Route::get('/servis', function () {
-        return redirect()->route('transaksiServis.index');
-    })->name('transaksiServis.index');
-
-
-    // Modifikasi Route Sparepart untuk diarahkan ke transaksi_sparepart
-    Route::get('/sparepart', function () {
+Route::middleware(['auth'])->group(function(){
+     // Modifikasi Route Sparepart untuk diarahkan ke transaksi_sparepart
+     Route::get('/sparepart', function () {
         return redirect()->route('transaksi_sparepart.index');
     })->name('transaksi_sparepart.index');
 
@@ -99,12 +93,15 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('transaksiServis', TransaksiServisController::class)->names('transaksiServis');
 
     // Untuk transaksi_sparepart, gunakan hanya satu resource route
-    Route::resource('transaksi_sparepart', TransaksiSparepartController::class)->names('transaksi_sparepart');   // Menetapkan nama rute
+    Route::resource('transaksi_sparepart', TransaksiSparepartController::class) ->names('transaksi_sparepart');   // Menetapkan nama rute
 
     // Additional Routes
     Route::delete('/transaksi_sparepart/{id_transaksi_sparepart}', [TransaksiSparepartController::class, 'destroy'])->name('transaksi_sparepart.destroy');
 
     Route::get('/pelanggan/get/{id_pelanggan}', [PelangganController::class, 'getNoHp']);
     Route::get('/transaksi_sparepart/jual/{id_transaksi_sparepart}', [TransaksiSparepartController::class, 'jual'])->name('transaksi_sparepart.jual');
-  
+
+
 });
+
+   
