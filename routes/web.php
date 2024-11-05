@@ -99,13 +99,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('transaksiServis', TransaksiServisController::class)->names('transaksiServis');
 
     // Untuk transaksi_sparepart, gunakan hanya satu resource route
-    Route::resource('transaksi_sparepart', TransaksiSparepartController::class)
-        ->except(['show'])   // Mengecualikan metode show
-        ->names('transaksi_sparepart');   // Menetapkan nama rute
+    Route::resource('transaksi_sparepart', TransaksiSparepartController::class)->names('transaksi_sparepart');   // Menetapkan nama rute
 
     // Additional Routes
     Route::delete('/transaksi_sparepart/{id_transaksi_sparepart}', [TransaksiSparepartController::class, 'destroy'])->name('transaksi_sparepart.destroy');
 
     Route::get('/pelanggan/get/{id_pelanggan}', [PelangganController::class, 'getNoHp']);
     Route::get('/transaksi_sparepart/jual/{id_transaksi_sparepart}', [TransaksiSparepartController::class, 'jual'])->name('transaksi_sparepart.jual');
+  
 });

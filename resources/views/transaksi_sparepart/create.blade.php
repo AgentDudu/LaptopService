@@ -79,7 +79,7 @@
             <h3>Tambah Transaksi Sparepart</h3>
             <hr>
             <div class="container">
-                <form action="{{ route('transaksi_sparepart.store') }}" method="POST">
+                <form action="{{ route('transaksi_sparepart.store') }}" method="POST" id="form-tambah">
                     @csrf
                     <table class="no-border">
                         <tr>
@@ -178,10 +178,38 @@
                     <div>
                         <button type="reset" class="btn btn-secondary me-2">Reset</button>
                         <button type="button" class="btn btn-warning me-2" id=jualButton>Jual</button>
-                        <button type="submit" class="btn btn-primary" id="submit">Simpan</button>
                     </div>
                 </form>
             </div>
+            <!-- Modal Pembayaran -->
+            <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="paymentModalLabel">Pembayaran</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="total_amount" class="form-label">Harus Dibayar</label>
+                                <p class="form-control-static">Rp. <span id="total_amount_display">0</span></p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="payment_amount" class="form-label">Pembayaran</label>
+                                <input type="text" class="form-control" id="payment_amount" name="payment_amount"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="change_amount" class="form-label">Kembalian</label>
+                                <p class="form-control-static" id="change_amount">Rp. 0</p>
+                            </div>
+                            <button form="form-tambah" type="submit" class="btn btn-primary" id="bayar">Bayar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -189,6 +217,24 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        $(document).ready(function () {
+            $('#id_pelanggan').on('input', function () {
+                var nama_pelanggan = $(this).val();
+
+                // Lakukan AJAX request untuk mendapatkan nomor HP pelanggan
+                $.ajax({
+                    url: '/pelanggan/get/' + encodeURIComponent(nama_pelanggan), // encodeURIComponent untuk aman dari karakter spesial
+                    method: 'GET',
+                    success: function (response) {
+                        $('#nohp_pelanggan').val(response.nohp_pelanggan || ''); // Mengisi nomor HP atau kosong jika tidak ada
+                    },
+                    error: function () {
+                        $('#nohp_pelanggan').val(''); // Kosongkan jika ada error
+                    }
+                });
+            });
+        });
+
         document.getElementById('id_pelanggan').addEventListener('change', async function () {
             const idPelanggan = this.value; // Mengambil nilai dari select (id pelanggan)
             const nohpField = document.getElementById('nohp_pelanggan');
@@ -209,6 +255,7 @@
         });
 
 
+
         $(document).ready(function () {
             var sparepartIndex = 0;
 
@@ -221,7 +268,28 @@
                     total += jumlah_sparepart_terjual * harga_sparepart;
                 });
                 $('#harga_total_transaksi_sparepart').val(total.toLocaleString('id-ID'));
+                $('#total_amount_display').text(total.toLocaleString('id-ID')); // Set total ke modal
             }
+
+            // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
+            $(document).on('input', '.sparepart-jumlah_sparepart_terjual, .sparepart-harga_sparepart', function () {
+                calculateTotalPrice();
+            });
+
+            // Event untuk tombol "Jual" membuka modal dan menampilkan total transaksi
+            $('#jualButton').on('click', function () {
+                calculateTotalPrice(); // Pastikan total diperbarui sebelum membuka modal
+                $('#paymentModal').modal('show'); // Tampilkan modal
+            });
+
+            // Menghitung kembalian saat input pembayaran diubah
+            $('#payment_amount').on('input', function () {
+                const total = parseFloat($('#total_amount_display').text().replace(/\./g, '').replace(',', '.')) || 0;
+                const payment = parseFloat($(this).val().replace(/[^0-9]/g, '') || 0);
+                const change = payment - total;
+
+                $('#change_amount').text('Rp. ' + (change > 0 ? change : 0).toLocaleString('id-ID'));
+            });
 
             // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
             $(document).on('input', '.sparepart-jumlah_sparepart_terjual, .sparepart-harga_sparepart', function () {
@@ -239,11 +307,11 @@
                 if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !isNaN(harga_sparepart)) {
                     var newRow = `
                         <tr>
-                            <td><input type="text" name="spareparts[${sparepartIndex}][jenis_sparepart]" class="form-control" value="${jenis_sparepart}" readonly></td>
-                            <td><input type="text" name="spareparts[${sparepartIndex}][merek_sparepart]" class="form-control" value="${merek_sparepart}" readonly></td>
-                            <td><input type="text" name="spareparts[${sparepartIndex}][model_sparepart]" class="form-control" value="${model_sparepart}" readonly></td>
-                            <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart_terjual]" class="form-control sparepart-jumlah_sparepart_terjual" value="${jumlah_sparepart_terjual}" readonly></td>
-                            <td><input type="text" name="spareparts[${sparepartIndex}][harga_sparepart]" class="form-control sparepart-harga_sparepart" value="${harga_sparepart}" readonly></td>
+                            <td><input type="text" name="spareparts[${sparepartIndex}][jenis_sparepart]" class="form-control" value="${jenis_sparepart}" ></td>
+                            <td><input type="text" name="spareparts[${sparepartIndex}][merek_sparepart]" class="form-control" value="${merek_sparepart}" ></td>
+                            <td><input type="text" name="spareparts[${sparepartIndex}][model_sparepart]" class="form-control" value="${model_sparepart}" ></td>
+                            <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart_terjual]" class="form-control sparepart-jumlah_sparepart_terjual" value="${jumlah_sparepart_terjual}" ></td>
+                            <td><input type="text" name="spareparts[${sparepartIndex}][harga_sparepart]" class="form-control sparepart-harga_sparepart" value="${harga_sparepart}" ></td>
                             <td><button type="button" class="btn btn-danger removeSparepartButton">Hapus</button></td>
                         </tr>`;
 

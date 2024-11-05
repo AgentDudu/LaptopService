@@ -44,38 +44,38 @@ class TransaksiSparepartController extends Controller
         DB::beginTransaction();
 
         // try {
-            // 1. Simpan data ke tabel TransaksiJualSparepart
-            $jualSparepart = TransaksiJualSparepart::create([
-                'id_pelanggan' => $request->id_pelanggan,
-                'id_teknisi' => $request->id_teknisi,
-                'tanggal_jual' => $request->tanggal_jual,
-                'harga_total_transaksi_sparepart' => $request->harga_total_transaksi_sparepart,
+        // 1. Simpan data ke tabel TransaksiJualSparepart
+        $jualSparepart = TransaksiJualSparepart::create([
+            'id_pelanggan' => $request->id_pelanggan,
+            'id_teknisi' => $request->id_teknisi,
+            'tanggal_jual' => $request->tanggal_jual,
+            'harga_total_transaksi_sparepart' => $request->harga_total_transaksi_sparepart,
+        ]);
+
+        // 2. Simpan setiap sparepart baru dan detail transaksi
+        foreach ($request->spareparts as $sparepartData) {
+            // dd('berhasil');
+            $sparepart = Sparepart::firstOrCreate(
+                [
+                    'jenis_sparepart' => $sparepartData['jenis_sparepart'],
+                    'merek_sparepart' => $sparepartData['merek_sparepart'],
+                    'model_sparepart' => $sparepartData['model_sparepart'],
+                ],
+                ['harga_sparepart' => $sparepartData['harga_sparepart']]
+            );
+
+            // Simpan detail transaksi
+            DetailTransaksiSparepart::create([
+                'id_transaksi_sparepart' => $jualSparepart->id_transaksi_sparepart,
+                'id_sparepart' => $sparepart->id_sparepart,
+                'jumlah_sparepart_terjual' => $sparepartData['jumlah_sparepart_terjual'],
             ]);
+        }
 
-            // 2. Simpan setiap sparepart baru dan detail transaksi
-            foreach ($request->spareparts as $sparepartData) {
-                // dd('berhasil');
-                $sparepart = Sparepart::firstOrCreate(
-                    [
-                        'jenis_sparepart' => $sparepartData['jenis_sparepart'],
-                        'merek_sparepart' => $sparepartData['merek_sparepart'],
-                        'model_sparepart' => $sparepartData['model_sparepart'],
-                    ],
-                    ['harga_sparepart' => $sparepartData['harga_sparepart']]
-                );
+        // Commit transaksi jika semua berhasil
+        DB::commit();
 
-                // Simpan detail transaksi
-                DetailTransaksiSparepart::create([
-                    'id_transaksi_sparepart' => $jualSparepart->id_transaksi_sparepart,
-                    'id_sparepart' => $sparepart->id_sparepart,
-                    'jumlah_sparepart_terjual' => $sparepartData['jumlah_sparepart_terjual'],
-                ]);
-            }
-
-            // Commit transaksi jika semua berhasil
-            DB::commit();
-
-            return redirect()->route('transaksi_sparepart.index')->with('success', 'Transaksi berhasil disimpan.');
+        return redirect()->route('transaksi_sparepart.index')->with('success', 'Transaksi berhasil disimpan.');
         // } catch (\Exception $e) {
         //     DB::rollBack();
         //     return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan transaksi: ' . $e->getMessage());
@@ -106,4 +106,22 @@ class TransaksiSparepartController extends Controller
 
         return view('transaksi_sparepart.jual', compact('jual_sparepart'));
     }
+
+    public function show($id_transaksi_saprepart)
+    {
+        $transaksi_sparepart = TransaksiJualSparepart::with(['pelanggan', 'teknisi', 'detail_transaksi_sparepart.sparepart'])
+            ->findOrFail($id_transaksi_saprepart);
+        $pelanggan = Pelanggan::all();
+        $teknisi = Teknisi::all();
+        $sparepart = Sparepart::all();
+
+        $lastSparepart = TransaksiJualSparepart::latest('id_transaksi_sparepart')->first();
+        $nextId = $lastSparepart ? intval(substr($lastSparepart->id_transaksi_sparepart, 3)) + 1 : 1;
+        $newId = 'TSP' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+
+        // Return the view for displaying the details in read-only mode
+        return view('transaksi_sparepart.show', compact('transaksi_sparepart', 'pelanggan', 'teknisi', 'sparepart', 'newId'));
+    }
+
 }
