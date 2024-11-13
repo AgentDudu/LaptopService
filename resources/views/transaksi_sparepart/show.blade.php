@@ -78,7 +78,7 @@
         <main class="content">
             <h3>Tambah Transaksi Sparepart</h3>
             <hr>
-            < class="container">
+            <div class="container">
                 <form action="{{ route('transaksi_sparepart.store') }}" method="POST">
                     @csrf
                     <table class="no-border">
@@ -166,9 +166,10 @@
                     </table>
 
                     <a href="{{ route('transaksi_sparepart.index') }}" class="btn btn-secondary">Kembali</a>
-
+                    </table>
                 </form>
-                </table>
+            </div>
+
         </main>
     </div>
 </body>
