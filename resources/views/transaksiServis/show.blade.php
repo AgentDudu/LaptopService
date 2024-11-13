@@ -358,51 +358,56 @@ use Illuminate\Support\Facades\Auth;
 
             if (pembayaran >= harusDibayar) {
                 kembalianInput.value = (pembayaran - harusDibayar).toLocaleString('id-ID');
-                bayarButton.disabled = false; // Enable the Bayar button
+                bayarButton.disabled = false;
             } else {
                 kembalianInput.value = '0';
-                bayarButton.disabled = true; // Disable the Bayar button if payment is insufficient
+                bayarButton.disabled = true;
             }
         });
 
         bayarButton.addEventListener('click', function handlePayment() {
-            const pembayaran = parseFloat(pembayaranInput.value) || 0;
-            const harusDibayar = parseFloat(harusDibayarInput.value) || 0;
+        const pembayaran = parseFloat(pembayaranInput.value) || 0;
+        const harusDibayar = parseFloat(harusDibayarInput.value) || 0;
+        const kembalian = pembayaran - harusDibayar;
 
-            if (pembayaran >= harusDibayar) {
-                axios.post('/transaksiServis/bayar', {
-                        id_service: '{{ $transaksiServis->id_service }}',
-                        pembayaran: pembayaran
-                    })
-                    .then(function(response) {
-                        if (response.data.success) {
-                            // Change Bayar button to Cetak Nota button
-                            bayarButton.innerHTML = 'Cetak Nota';
-                            bayarButton.classList.remove('btn-primary');
-                            bayarButton.classList.add('btn-warning');
+        if (pembayaran >= harusDibayar) {
+            axios.post('/transaksiServis/bayar', {
+                id_service: '{{ $transaksiServis->id_service }}',
+                pembayaran: pembayaran
+            }).then(response => {
+                if (response.data.success) {
+                    bayarButton.innerHTML = 'Cetak dan Kirim Nota';
+                    bayarButton.classList.remove('btn-primary');
+                    bayarButton.classList.add('btn-warning');
 
-                            // Calculate kembalian
-                            const kembalian = pembayaran - harusDibayar;
+                    bayarButton.removeEventListener('click', handlePayment);
+                    bayarButton.addEventListener('click', () => {
+                        // Open PDF and send WhatsApp message
+                        window.open(
+                            '{{ route('transaksiServis.cetakNota', $transaksiServis->id_service) }}?pembayaran=' + encodeURIComponent(pembayaran) + '&kembalian=' + encodeURIComponent(kembalian),
+                            '_blank'
+                        );
 
-                            // Remove the original click event listener
-                            bayarButton.removeEventListener('click', handlePayment);
-
-                            // Set a new click event for generating the invoice
-                            bayarButton.addEventListener('click', function generateInvoice() {
-                                window.location.href = '{{ route('transaksiServis.cetakNota', $transaksiServis->id_service) }}' +
-                                    '?pembayaran=' + encodeURIComponent(pembayaran) +
-                                    '&kembalian=' + encodeURIComponent(kembalian);
-                            });
-                        } else {
-                            alert('Pembayaran gagal, coba lagi.');
-                        }
-                    })
-                    .catch(function(error) {
-                        console.error("Error during payment request: ", error);
-                        alert('Terjadi kesalahan. Silakan coba lagi.');
+                        axios.post('/transaksiServis/sendInvoiceToWhatsapp', {
+                            id_service: '{{ $transaksiServis->id_service }}',
+                            pembayaran: pembayaran,
+                            kembalian: kembalian
+                        }).then(fonnteResponse => {
+                            alert(fonnteResponse.data.message);
+                        }).catch(error => {
+                            console.error('Error sending WhatsApp message:', error);
+                            alert('Terjadi kesalahan saat mengirim nota ke WhatsApp.');
+                        });
                     });
-            }
-        });
+                } else {
+                    alert('Pembayaran gagal, coba lagi.');
+                }
+            }).catch(error => {
+                console.error("Error during payment request: ", error);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+            });
+        }
+    });
 
         modalElement.addEventListener('hidden.bs.modal', function() {
             location.reload();

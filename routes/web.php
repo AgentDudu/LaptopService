@@ -82,6 +82,7 @@ Route::resource('jasaServis', JasaServisController::class);
 Route::resource('transaksiServis', TransaksiServisController::class);
 Route::post('/transaksiServis/bayar', [TransaksiServisController::class, 'bayar'])->name('transaksiServis.bayar');
 Route::get('/transaksiServis/{id}/cetakNota', [TransaksiServisController::class, 'cetakNota'])->name('transaksiServis.cetakNota');
+Route::post('/transaksiServis/sendInvoiceToWhatsapp', [TransaksiServisController::class, 'sendInvoiceToWhatsapp']);
 
 Route::middleware(['auth'])->group(function(){
      // Modifikasi Route Sparepart untuk diarahkan ke transaksi_sparepart
