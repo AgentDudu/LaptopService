@@ -78,7 +78,7 @@
         <main class="content">
             <h3>Tambah Transaksi Sparepart</h3>
             <hr>
-            <div class="container">
+            < class="container">
                 <form action="{{ route('transaksi_sparepart.store') }}" method="POST">
                     @csrf
                     <table class="no-border">
@@ -94,7 +94,7 @@
                             <td>Total Transaksi</td>
                             <td>
                                 <input type="text" name="harga_total_transaksi_sparepart"
-                                    value="Rp. {{number_format($transaksi_sparepart->harga_total_transaksi_sparepart,2,',','.')}}"
+                                    value="Rp. {{number_format($transaksi_sparepart->harga_total_transaksi_sparepart, 2, ',', '.')}}"
                                     class="form-control total-harga_sparepart-input" required readonly>
                             </td>
                         </tr>
@@ -102,7 +102,8 @@
                             <td>Teknisi</td>
                             <td>:</td>
                             <td>
-                                <input type="text" value="{{$transaksi_sparepart->teknisi->nama_teknisi}}" class="form-control" readonly>
+                                <input type="text" value="{{$transaksi_sparepart->teknisi->nama_teknisi}}"
+                                    class="form-control" readonly>
                             </td>
                         </tr>
                         <tr>
@@ -121,7 +122,8 @@
                             <td>Pelanggan</td>
                             <td>:</td>
                             <td>
-                                <input type="text" value="{{$transaksi_sparepart->pelanggan->nama_pelanggan}}" readonly class="form-control" readonly>
+                                <input type="text" value="{{$transaksi_sparepart->pelanggan->nama_pelanggan}}" readonly
+                                    class="form-control" readonly>
                             </td>
                         </tr>
 
@@ -162,14 +164,13 @@
                             @endforeach
                         </tbody>
                     </table>
+
                     <a href="{{ route('transaksi_sparepart.index') }}" class="btn btn-secondary">Kembali</a>
-                      
+
                 </form>
-            </div>
+                </table>
         </main>
     </div>
-
-    
 </body>
 
 </html>

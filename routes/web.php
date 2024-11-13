@@ -99,5 +99,6 @@ Route::middleware(['auth'])->group(function(){
     Route::delete('/transaksi_sparepart/{id_transaksi_sparepart}', [TransaksiSparepartController::class, 'destroy'])->name('transaksi_sparepart.destroy');
 
     Route::get('/pelanggan/get/{id_pelanggan}', [PelangganController::class, 'getNoHp']);
-    Route::get('/transaksi_sparepart/jual/{id_transaksi_sparepart}', [TransaksiSparepartController::class, 'jual'])->name('transaksi_sparepart.jual');
+    Route::get('/transaksi_sparepart/{id_transaksi_sparepart}/nota', [TransaksiSparepartController::class, 'nota'])->name('transaksi_sparepart.nota');
+
 });

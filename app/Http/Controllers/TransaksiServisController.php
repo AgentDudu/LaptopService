@@ -259,7 +259,7 @@ class TransaksiServisController extends Controller
         ];
 
         // Generate the PDF or display the invoice view
-        $pdf = \PDF::loadView('transaksiServis.invoice', $data);
+        $pdf = PDF::loadView('transaksiServis.invoice', $data);
 
         // Return PDF download
         return $pdf->download('invoice_' . $transaksiServis->id_service . '.pdf');
