@@ -128,6 +128,7 @@
                     <h5 class="pelanggan-label">Pelanggan</h5>
                     <table class="no-border">
                         <tr>
+                        <tr>
                             <td>Pelanggan</td>
                             <td>:</td>
                             <td width="200px">
@@ -184,7 +185,6 @@
                         <button type="reset" class="btn btn-secondary me-2">Reset</button>
                         <button type="button" class="btn btn-warning me-2" id=jualButton>Jual</button>
                     </div>
-                </form>
             </div>
             <!-- Modal Pembayaran -->
             <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel"
@@ -202,13 +202,12 @@
                                 <p class="form-control-static">Rp. <span id="total_amount_display">0</span></p>
                             </div>
                             <div class="mb-3">
-                                <label for="payment_amount" class="form-label">Pembayaran</label>
-                                <input type="text" class="form-control" id="payment_amount" name="payment_amount"
-                                    required>
+                                <label for="pembayaran" class="form-label">Pembayaran</label>
+                                <input type="text" class="form-control" id="pembayaran" name="pembayaran" required>
                             </div>
                             <div class="mb-3">
-                                <label for="change_amount" class="form-label">Kembalian</label>
-                                <p class="form-control-static" id="change_amount">Rp. 0</p>
+                                <label for="kembalian" class="form-label">Kembalian</label>
+                                <p class="form-control-static" id="kembalian">Rp. 0</p>
                             </div>
                             <button form="form-tambah" type="submit" class="btn btn-primary"
                                 id="bayar">Bayar</button>
@@ -217,6 +216,7 @@
                 </div>
             </div>
 
+            </form>
         </main>
     </div>
 
@@ -268,7 +268,6 @@
         $(document).ready(function() {
             var sparepartIndex = 0;
 
-            // Fungsi untuk menghitung total harga secara dinamis
             function calculateTotalPrice() {
                 var total = 0;
                 $('#sparepartsTable tbody tr').each(function() {
@@ -300,7 +299,8 @@
                 const payment = parseFloat($(this).val().replace(/[^0-9]/g, '') || 0);
                 const change = payment - total;
 
-                $('#change_amount').text('Rp. ' + (change > 0 ? change : 0).toLocaleString('id-ID'));
+                // Pastikan kembalian selalu bernilai positif atau 0
+                $('#kembalian').text('Rp. ' + (change > 0 ? change : 0).toLocaleString('id-ID'));
             });
 
             // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
@@ -326,6 +326,8 @@
                             <td><input type="text" name="spareparts[${sparepartIndex}][model_sparepart]" class="form-control" value="${model_sparepart}" ></td>
                             <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart_terjual]" class="form-control sparepart-jumlah_sparepart_terjual" value="${jumlah_sparepart_terjual}" ></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][harga_sparepart]" class="form-control sparepart-harga_sparepart" value="${harga_sparepart}" ></td>
+                            <td><input type="text" name="spareparts[${sparepartIndex}][subtotal]" class="form-control sparepart-subtotal" value="${subtotal}" ></td>
+                        
                             <td><button type="button" class="btn btn-danger removeSparepartButton">Hapus</button></td>
                         </tr>`;
 
@@ -365,6 +367,8 @@
                             <td><input type="text" name="spareparts[${sparepartIndex}][model_sparepart]" class="form-control" value="${model_sparepart}" readonly></td>
                             <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart_terjual]" class="form-control sparepart-jumlah_sparepart_terjual" value="${jumlah_sparepart_terjual}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][harga_sparepart]" class="form-control sparepart-harga_sparepart" value="${harga_sparepart}" readonly></td>
+                            <td><input type="text" name="spareparts[${sparepartIndex}][subtotal]" class="form-control sparepart-subtotal" value="${subtotal}" readonly></td>
+                        
                         </tr>`;
 
                     $('#sparepartsTable tbody').append(newRow);
@@ -385,6 +389,22 @@
                     hargaInput.val(hargaBersih); // Set nilai yang bersih
                 });
             });
+            function processPayment() {
+        // Simulasikan proses pembayaran (misalnya, simpan data ke server)
+        // Dalam implementasi nyata, Anda bisa menggunakan AJAX untuk menyimpan data tanpa refresh
+
+        // Misal, tampilkan pesan berhasil terlebih dahulu (opsional)
+        alert("Pembayaran berhasil!");
+
+        // Mengubah tombol "Bayar" menjadi "Cetak Nota"
+        let bayarButton = document.getElementById("bayarButton");
+        bayarButton.innerHTML = "Cetak Nota";
+        bayarButton.classList.remove("btn-primary"); // Menghapus kelas btn-primary
+        bayarButton.classList.add("btn-success"); // Mengubah warna tombol menjadi hijau
+        bayarButton.onclick = function() {
+            window.print(); // Fungsi cetak ketika tombol diklik
+        };
+    }
         });
     </script>
 

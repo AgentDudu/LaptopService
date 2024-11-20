@@ -1,53 +1,65 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💻 Point of Sale Laptop Repair Shop 💻
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## About the Project
 
-## About Laravel
+The **Point of Sale Laptop Repair Shop** is a comprehensive POS system designed to assist shop owners and employees in managing their daily operations. This system streamlines transactions, organizes data, and enhances efficiency in a laptop repair shop environment. 
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+✅ **User Management**  
+  Handle roles, permissions, and access control for shop owners and employees.  
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+✅ **CRUD Operations**  
+  Manage records for employees/technicians, customers, laptops, services, and spare parts with Create, Read, Update, and Delete functionalities.
 
-## Learning Laravel
+✅ **Laptop Service Transactions**  
+  Process service requests for laptops, including diagnostics and repairs.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+✅ **Spare Part Transactions**  
+  Facilitate the sale of spare parts to customers with real-time inventory updates.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+✅ **Digital Receipt Generation**  
+  Automatically generate digital receipts for completed transactions.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+✅ **Transaction History**  
+  Maintain log of all service and sales transactions for reporting and tracking.
 
-## Laravel Sponsors
+## Technologies Used
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Development Environment**: [XAMPP](https://www.apachefriends.org/index.html) or [Laragon](https://laragon.org/)  
+- **Code Editor**: [Visual Studio Code](https://code.visualstudio.com/)  
+- **Framework**: [Laravel 10](https://laravel.com/)  
+- **Database**: [MySQL](https://www.mysql.com/)
 
-### Premium Partners
+## Getting Started
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Prerequisites
+1. Install [XAMPP](https://www.apachefriends.org/index.html) or [Laragon](https://laragon.org/).
+2. Install [Composer](https://getcomposer.org/).
+3. Install [Node.js](https://nodejs.org/).
+
+### Installation
+1. Clone the repository:  
+   ```bash
+   git clone https://github.com/Evelynboswell/LaptopService.git
+2. Navigate to Project Directory
+3. Install PHP Dependencies
+   ```bash
+   composer install
+5. Install NPM for Front-End Dependencies
+   ```bash
+   npm install
+   npm run dev
+7. Set Up Environment File
+8. Generate Application Key
+   ```bash
+   php artisan key:generate
+10. Run Migrations
+    ```bash
+    php artisan migrate
+12. Start Development Server
+    ```bash
+    php artisan serve
 
 ## Contributing
 
