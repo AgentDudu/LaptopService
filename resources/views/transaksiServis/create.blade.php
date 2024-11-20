@@ -518,6 +518,8 @@ use Illuminate\Support\Facades\Auth;
         // Initial calculation
         calculateTotalTransaksi();
     });
+
+
     </script>
 
 </body>

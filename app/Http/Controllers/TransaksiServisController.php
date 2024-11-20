@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class TransaksiServisController extends Controller
 {
     public function index()
     {
-        // Fetch latest TransaksiServis for ID generation
         $lastService = TransaksiServis::latest('id_service')->first();
 
         if ($lastService) {
@@ -31,7 +31,6 @@ class TransaksiServisController extends Controller
 
         $newId = 'TSV' . $nextIdNumber;
 
-        // Fetch all necessary data for the view
         $jasaServis = TransaksiServis::with(['teknisi', 'pelanggan', 'laptop', 'detailTransaksiServis.jasaServis'])->get();
         $pelanggan = Pelanggan::all();
         $laptops = Laptop::all();
@@ -78,13 +77,11 @@ class TransaksiServisController extends Controller
         try {
             DB::beginTransaction();
 
-            // Handle Pelanggan
             $pelanggan = Pelanggan::firstOrCreate(
                 ['nohp_pelanggan' => $request->input('nohp_pelanggan')],
                 ['nama_pelanggan' => $request->input('nama_pelanggan')]
             );
 
-            // Handle Laptop
             $laptop = Laptop::firstOrCreate(
                 [
                     'id_pelanggan' => $pelanggan->id_pelanggan,
@@ -93,7 +90,6 @@ class TransaksiServisController extends Controller
                 ['deskripsi_masalah' => $request->input('keluhan')]
             );
 
-            // Create Transaksi Servis
             $transaksiServis = TransaksiServis::create([
                 'id_servis' => $request->input('id_servis'),
                 'id_laptop' => $laptop->id_laptop,
@@ -101,18 +97,15 @@ class TransaksiServisController extends Controller
                 'tanggal_masuk' => $request->input('tanggal_masuk'),
                 'tanggal_keluar' => $request->input('tanggal_keluar'),
                 'status_bayar' => $request->input('status_bayar'),
-                'harga_total_transaksi_servis' => 0, // Updated later
+                'harga_total_transaksi_servis' => 0,
             ]);
 
-            // Initialize total price
             $totalJasaServis = 0;
 
-            // Process jasa_servis and spareparts
             foreach ($request->input('jasa_servis', []) as $jasaId) {
                 $jasaServis = JasaServis::find($jasaId);
 
                 if ($jasaServis) {
-                    // Check for sparepart details in the request
                     $sparepartTipe = $request->input("sparepart_tipe_1");
                     $sparepartMerek = $request->input("sparepart_merek_1");
                     $sparepartModel = $request->input("sparepart_model_1");
@@ -122,7 +115,6 @@ class TransaksiServisController extends Controller
 
                     $sparepartId = null;
                     if ($sparepartTipe && $sparepartMerek && $sparepartModel) {
-                        // Create or find the sparepart in the sparepart table
                         $sparepart = Sparepart::firstOrCreate(
                             [
                                 'jenis_sparepart' => $sparepartTipe,
@@ -134,11 +126,9 @@ class TransaksiServisController extends Controller
                             ]
                         );
 
-                        // Get the ID of the sparepart
                         $sparepartId = $sparepart->id_sparepart;
                     }
 
-                    // Save detail transaksi servis
                     DetailTransaksiServis::create([
                         'id_service' => $transaksiServis->id_service,
                         'id_jasa' => $jasaServis->id_jasa,
@@ -151,12 +141,10 @@ class TransaksiServisController extends Controller
                         'jumlah_sparepart_terpakai' => $sparepartJumlah ? $sparepartJumlah : null,
                     ]);
 
-                    // Increment the total jasa servis price
                     $totalJasaServis += $request->input('custom_price')[$jasaId];
                 }
             }
 
-            // Update the total transaction price
             $transaksiServis->update(['harga_total_transaksi_servis' => $totalJasaServis]);
 
             DB::commit();
@@ -171,13 +159,11 @@ class TransaksiServisController extends Controller
 
     public function show($id)
     {
-        // Fetch the TransaksiServis details, including jasaServis and sparepart details
         $transaksiServis = TransaksiServis::with(['detailTransaksiServis.jasaServis', 'detailTransaksiServis.sparepart'])->findOrFail($id);
         $pelanggan = Pelanggan::all();
         $laptops = Laptop::all();
         $jasaServisList = JasaServis::all();
 
-        // Extract selected jasa services and custom prices
         $selectedJasaIds = $transaksiServis->detailTransaksiServis->pluck('id_jasa')->toArray();
         $selectedCustomPrices = [];
         $selectedSpareparts = [];
@@ -197,7 +183,6 @@ class TransaksiServisController extends Controller
             }
         }
 
-        // Return the view for displaying the details in read-only mode
         return view('transaksiServis.show', compact('transaksiServis', 'pelanggan', 'laptops', 'jasaServisList', 'selectedJasaIds', 'selectedCustomPrices', 'selectedSpareparts'));
     }
 
@@ -206,7 +191,6 @@ class TransaksiServisController extends Controller
         try {
             Log::info('Processing bayar request', $request->all());
 
-            // Validate the request
             $validatedData = $request->validate([
                 'id_service' => 'required|exists:service,id_service',
                 'pembayaran' => 'required|numeric|min:0',
@@ -214,16 +198,13 @@ class TransaksiServisController extends Controller
 
             Log::info('Validation passed', $validatedData);
 
-            // Retrieve the transaction
             $transaksiServis = TransaksiServis::findOrFail($validatedData['id_service']);
             Log::info('Found transaksiServis', ['id_service' => $validatedData['id_service']]);
 
-            // Check if already paid
             if ($transaksiServis->status_bayar === 'Sudah dibayar') {
                 return response()->json(['success' => false, 'message' => 'Transaksi sudah dibayar'], 400);
             }
 
-            // Update payment status
             $transaksiServis->update(['status_bayar' => 'Sudah dibayar']);
             Log::info('Updated status_bayar to Sudah dibayar');
 
@@ -239,17 +220,13 @@ class TransaksiServisController extends Controller
 
     public function cetakNota($id)
     {
-        // Fetch the service transaction details
         $transaksiServis = TransaksiServis::with(['detailTransaksiServis.jasaServis', 'detailTransaksiServis.sparepart', 'pelanggan', 'laptop'])->findOrFail($id);
 
-        // Calculate total transaction price
         $totalHarga = $transaksiServis->harga_total_transaksi_servis + $transaksiServis->detailTransaksiServis->sum('subtotal_sparepart');
 
-        // Retrieve pembayaran and kembalian from request if available, else set defaults
-        $pembayaran = request('pembayaran', $totalHarga); // Default to totalHarga if not set
-        $kembalian = request('kembalian', $pembayaran - $totalHarga); // Default to calculated difference
+        $pembayaran = request('pembayaran', $totalHarga);
+        $kembalian = request('kembalian', $pembayaran - $totalHarga);
 
-        // Prepare data for the view
         $data = [
             'transaksiServis' => $transaksiServis,
             'totalHarga' => $totalHarga,
@@ -257,11 +234,69 @@ class TransaksiServisController extends Controller
             'kembalian' => $kembalian,
         ];
 
-        // Generate the PDF or display the invoice view
         $pdf = \PDF::loadView('transaksiServis.invoice', $data);
 
-        // Return PDF download
         return $pdf->download('invoice_' . $transaksiServis->id_service . '.pdf');
+    }
+
+    public function sendInvoiceToWhatsapp(Request $request)
+    {
+        $request->validate([
+            'id_service' => 'required|exists:service,id_service',
+            'pembayaran' => 'required|numeric|min:0',
+            'kembalian' => 'required|numeric'
+        ]);
+
+        $transaksiServis = TransaksiServis::with('pelanggan')->find($request->id_service);
+        $whatsappNumber = $transaksiServis->pelanggan->nohp_pelanggan;
+
+        if (substr($whatsappNumber, 0, 1) === '0') {
+            $whatsappNumber = '62' . substr($whatsappNumber, 1);
+        }
+
+        $totalHarga = $transaksiServis->harga_total_transaksi_servis;
+        $messageText = "Halo {$transaksiServis->pelanggan->nama_pelanggan}, berikut adalah nota servis Anda. Total Harga: Rp. " . number_format($totalHarga, 0, ',', '.') . ". Pembayaran: Rp. " . number_format($request->pembayaran, 0, ',', '.') . ". Kembalian: Rp. " . number_format($request->kembalian, 0, ',', '.') . ". Terima kasih!";
+
+        $pdf = Pdf::loadView('transaksiServis.invoice', [
+            'transaksiServis' => $transaksiServis,
+            'totalHarga' => $totalHarga,
+            'pembayaran' => $request->pembayaran,
+            'kembalian' => $request->kembalian
+        ]);
+
+        Storage::disk('public')->makeDirectory('invoices');
+
+        $pdfPath = 'invoices/Nota_Servis_' . $transaksiServis->id_service . '.pdf';
+        Storage::disk('public')->put($pdfPath, $pdf->output());
+
+        $pdfUrl = Storage::disk('public')->url($pdfPath);
+
+        $verifySSL = app()->environment('production');
+
+        $fonnteResponse = Http::withOptions([
+            'verify' => $verifySSL
+        ])->withHeaders([
+            'Authorization' => 'Bearer UEwrMacTPxf167ykGu7R'
+        ])->post('https://api.fonnte.com/send', [
+            'target' => $whatsappNumber,
+            'message' => $messageText,
+            'url' => $pdfUrl,
+            'filename' => 'Nota_Servis_' . $transaksiServis->id_service . '.pdf',
+            'countryCode' => '62'
+        ]);
+
+        if ($fonnteResponse->successful()) {
+            return response()->json(['success' => true, 'message' => 'Nota berhasil dikirim ke WhatsApp pelanggan.']);
+        } else {
+            Log::error('Failed to send WhatsApp message:', [
+                'status' => $fonnteResponse->status(),
+                'response' => $fonnteResponse->body(),
+                'number' => $whatsappNumber,
+                'message' => $messageText,
+                'pdfUrl' => $pdfUrl
+            ]);
+            return response()->json(['success' => false, 'message' => 'Gagal mengirim nota via WhatsApp.']);
+        }
     }
 
     public function edit($id)
@@ -316,7 +351,6 @@ class TransaksiServisController extends Controller
 
             $transaksiServis = TransaksiServis::findOrFail($id);
 
-            // Update Pelanggan and Laptop data
             $pelanggan = Pelanggan::firstOrCreate(
                 ['nohp_pelanggan' => $request->input('nohp_pelanggan')],
                 ['nama_pelanggan' => $request->input('nama_pelanggan')]
@@ -330,7 +364,6 @@ class TransaksiServisController extends Controller
                 ['deskripsi_masalah' => $request->input('keluhan')]
             );
 
-            // Update TransaksiServis data
             $transaksiServis->update([
                 'id_laptop' => $laptop->id_laptop,
                 'tanggal_masuk' => $request->input('tanggal_masuk'),
@@ -338,7 +371,6 @@ class TransaksiServisController extends Controller
                 'status_bayar' => $request->input('status_bayar'),
             ]);
 
-            // Delete old details
             DetailTransaksiServis::where('id_service', $transaksiServis->id_service)->delete();
 
             $totalJasaServis = 0;
@@ -347,7 +379,6 @@ class TransaksiServisController extends Controller
                 $jasaServis = JasaServis::find($jasaId);
 
                 if ($jasaServis) {
-                    // Check for sparepart details in the request
                     $sparepartTipe = $request->input("sparepart_tipe_{$jasaId}");
                     $sparepartMerek = $request->input("sparepart_merek_{$jasaId}");
                     $sparepartModel = $request->input("sparepart_model_{$jasaId}");
@@ -357,7 +388,6 @@ class TransaksiServisController extends Controller
 
                     $sparepartId = null;
                     if ($sparepartTipe && $sparepartMerek && $sparepartModel) {
-                        // Create or find the sparepart in the sparepart table
                         $sparepart = Sparepart::firstOrCreate(
                             [
                                 'jenis_sparepart' => $sparepartTipe,
@@ -372,11 +402,10 @@ class TransaksiServisController extends Controller
                         $sparepartId = $sparepart->id_sparepart;
                     }
 
-                    // Save detail transaksi servis with or without sparepart
                     DetailTransaksiServis::create([
                         'id_service' => $transaksiServis->id_service,
                         'id_jasa' => $jasaServis->id_jasa,
-                        'id_sparepart' => $sparepartId, // Save sparepart ID if available
+                        'id_sparepart' => $sparepartId,
                         'harga_transaksi_jasa_servis' => $request->input('custom_price')[$jasaId],
                         'jangka_garansi_bulan' => $request->input("jangka_garansi_{$jasaServis->jenis_jasa}", 1),
                         'akhir_garansi' => $request->input("tgl_mulai_{$jasaServis->jenis_jasa}"),
@@ -389,7 +418,6 @@ class TransaksiServisController extends Controller
                 }
             }
 
-            // Update the total transaction price
             $transaksiServis->update(['harga_total_transaksi_servis' => $totalJasaServis]);
 
             DB::commit();
@@ -407,13 +435,10 @@ class TransaksiServisController extends Controller
         try {
             DB::beginTransaction();
 
-            // Find the TransaksiServis by ID
             $transaksiServis = TransaksiServis::findOrFail($id);
 
-            // Delete related DetailTransaksiServis records
             DetailTransaksiServis::where('id_service', $transaksiServis->id_service)->delete();
 
-            // Finally, delete the TransaksiServis record
             $transaksiServis->delete();
 
             DB::commit();

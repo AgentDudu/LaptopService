@@ -96,13 +96,18 @@
                                 <td>Rp {{ number_format($transaksi_sp->harga_total_transaksi_sparepart, 2, ',', '.') }}</td>
                                 <td class="actions-column">
                                     <!-- Lihat Button -->
-                                    <a href="{{ route('transaksi_sparepart.show', $transaksi_sp->id_transaksi_sparepart) }}" class="btn btn-success">Lihat</a>
+                                    <a href="{{ route('transaksi_sparepart.show', $transaksi_sp->id_transaksi_sparepart) }}"
+                                        class="btn btn-success">Lihat</a>
 
                                     <!-- Delete Button as a form -->
-                                    <form action="{{ route('transaksi_sparepart.destroy', $transaksi_sp->id_transaksi_sparepart) }}" method="POST" style="display: inline;">
+                                    <form
+                                        action="{{ route('transaksi_sparepart.destroy', $transaksi_sp->id_transaksi_sparepart) }}"
+                                        method="POST" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?')">Delete</button>
+                                        <button type="submit" class="btn btn-danger"
+                                            onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?')">Delete</button>
+
                                     </form>
                                 </td>
                             </tr>
