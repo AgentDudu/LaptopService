@@ -43,8 +43,8 @@
 
         .pelanggan-label,
         .sparepart-label {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.4rem;
+            font-weight: 500;
             color: #6c757d;
         }
 
@@ -61,6 +61,15 @@
 
         .table tbody tr td {
             vertical-align: middle;
+        }
+        .content-frame {
+            height: 200px;
+            max-height: 200px;
+            overflow-y: scroll; 
+        }
+        .allbtn {
+            margin-top: 30px;
+            position: fixed;
         }
     </style>
 </head>
@@ -87,14 +96,22 @@
                             <td>:</td>
                             <td>
                                 <input type="text" name="id_transaksi_sparepart"
-                                    value="{{$transaksi_sparepart->$newId }}" readonly class="form-control"
+                                    value="{{ $transaksi_sparepart->$newId }}" readonly class="form-control"
                                     placeholder="TSP001">
                             </td>
-                            <td width="600px"></td>
+                            <td width="20px"></td>
+
+                            <td>Tanggal</td>
+                            <td>:</td>
+                            <td width="200px">
+                                <input type="date" value="{{ $transaksi_sparepart->tanggal_jual }}"
+                                    name="tanggal_jual" class="form-control" readonly>
+                            </td>
+                            <td width="300px"></td>
                             <td>Total Transaksi</td>
                             <td>
                                 <input type="text" name="harga_total_transaksi_sparepart"
-                                    value="Rp. {{number_format($transaksi_sparepart->harga_total_transaksi_sparepart,2,',','.')}}"
+                                    value="Rp. {{ number_format($transaksi_sparepart->harga_total_transaksi_sparepart, 2, ',', '.') }}"
                                     class="form-control total-harga_sparepart-input" required readonly>
                             </td>
                         </tr>
@@ -102,14 +119,9 @@
                             <td>Teknisi</td>
                             <td>:</td>
                             <td>
-                                <input type="text" value="{{$transaksi_sparepart->teknisi->nama_teknisi}}" class="form-control" readonly>
+                                <input type="text" value="{{ $transaksi_sparepart->teknisi->nama_teknisi }}"
+                                    class="form-control" readonly>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>Tanggal</td>
-                            <td>:</td>
-                            <td><input type="date" value="{{$transaksi_sparepart->tanggal_jual}}" name="tanggal_jual"
-                                    class="form-control" readonly></td>
                         </tr>
                     </table>
 
@@ -121,14 +133,13 @@
                             <td>Pelanggan</td>
                             <td>:</td>
                             <td>
-                                <input type="text" value="{{$transaksi_sparepart->pelanggan->nama_pelanggan}}" readonly class="form-control" readonly>
+                                <input type="text" value="{{ $transaksi_sparepart->pelanggan->nama_pelanggan }}"
+                                    readonly class="form-control" readonly>
                             </td>
-                        </tr>
-
-                        <tr>
+                            <td width="20px"></td>
                             <td>No HP</td>
                             <td>:</td>
-                            <td><input type="text" value="{{$transaksi_sparepart->pelanggan->nohp_pelanggan}}"
+                            <td><input type="text" value="{{ $transaksi_sparepart->pelanggan->nohp_pelanggan }}"
                                     name="nohp_pelanggan" class="form-control" readonly></td>
                         </tr>
                     </table>
@@ -136,40 +147,44 @@
                     <div class="long-line"></div>
 
                     <h5 class="sparepart-label">Sparepart</h5>
-                    <table class="table table-bordered" id="sparepartsTable">
-                        <thead>
-                            <tr>
-                                <th>Jenis Sparepart</th>
-                                <th>Merek</th>
-                                <th>Model</th>
-                                <th>Jumlah</th>
-                                <th>Harga</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($transaksi_sparepart->detail_transaksi_sparepart as $detail)
+                    <div class="content-frame">
+                        <table class="table table-bordered" id="sparepartsTable">
+                            <thead>
                                 <tr>
-                                    <td>{{ $detail->sparepart->jenis_sparepart }}</td>
-                                    <td>{{ $detail->sparepart->merek_sparepart }}</td>
-                                    <td>{{ $detail->sparepart->model_sparepart }}</td>
-                                    <td>{{ $detail->jumlah_sparepart_terjual }}</td>
-                                    <td>Rp {{ number_format($detail->sparepart->harga_sparepart, 2, ',', '.') }}</td>
-                                    <td>Rp
-                                        {{ number_format($detail->jumlah_sparepart_terjual * $detail->sparepart->harga_sparepart, 2, ',', '.') }}
-                                    </td>
+                                    <th>Jenis Sparepart</th>
+                                    <th>Merek</th>
+                                    <th>Model</th>
+                                    <th>Jumlah</th>
+                                    <th>Harga</th>
+                                    <th>Subtotal</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <a href="{{ route('transaksi_sparepart.index') }}" class="btn btn-secondary">Kembali</a>
-                      
+                            </thead>
+                            <tbody>
+                                @foreach ($transaksi_sparepart->detail_transaksi_sparepart as $detail)
+                                    <tr>
+                                        <td>{{ $detail->sparepart->jenis_sparepart }}</td>
+                                        <td>{{ $detail->sparepart->merek_sparepart }}</td>
+                                        <td>{{ $detail->sparepart->model_sparepart }}</td>
+                                        <td>{{ $detail->jumlah_sparepart_terjual }}</td>
+                                        <td>Rp {{ number_format($detail->sparepart->harga_sparepart, 2, ',', '.') }}
+                                        </td>
+                                        <td>Rp
+                                            {{ number_format($detail->jumlah_sparepart_terjual * $detail->sparepart->harga_sparepart, 2, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="allbtn">
+                        <a href="{{ route('transaksi_sparepart.index') }}" class="btn btn-secondary">Kembali</a>
+                    </div>
                 </form>
             </div>
         </main>
     </div>
 
-    
+
 </body>
 
 </html>

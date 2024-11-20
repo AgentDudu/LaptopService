@@ -84,11 +84,12 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('transaksi_sparepart.index') }}"
-                            class="nav-link ps-4 {{ Route::is('sparepart.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                            class="nav-link ps-4 {{ Route::is('transaksi_sparepart.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                             @include('components.icons.svg-transSparepart')
                             Sparepart
                         </a>
                     </li>
+
         </li>
     </ul>
 </div>
@@ -169,9 +170,9 @@
     }
 
     // Load the state of the submenus from local storage
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const submenus = ['transaksi-submenu', 'database-submenu'];
-        submenus.forEach(function (id) {
+        submenus.forEach(function(id) {
             const submenu = document.getElementById(id);
             const isOpen = localStorage.getItem(id) === 'true';
             if (isOpen) {

@@ -43,8 +43,8 @@
 
         .pelanggan-label,
         .sparepart-label {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.4rem;
+            font-weight: 500;
             color: #6c757d;
         }
 
@@ -61,6 +61,15 @@
 
         .table tbody tr td {
             vertical-align: middle;
+        }
+        .content-frame {
+            height: 200px;
+            max-height: 200px;
+            overflow-y: scroll; 
+        }
+        .allbtn {
+            margin-top: 30px;
+            position: fixed;
         }
     </style>
 </head>
@@ -89,7 +98,13 @@
                                 <input type="text" name="id_transaksi_sparepart" value="{{ $newId }}" readonly
                                     class="form-control" placeholder="TSP001">
                             </td>
-                            <td width="600px"></td>
+                            <td width="20px"></td>
+
+                            <td>Tanggal</td>
+                            <td>:</td>
+                            <td width="200px"><input type="date" name="tanggal_jual" class="form-control" required></td>
+                            <td width="300px"></td>
+
                             <td>Total Transaksi</td>
                             <td>
                                 <input type="text" name="harga_total_transaksi_sparepart"
@@ -102,19 +117,9 @@
                             <td>Teknisi</td>
                             <td>:</td>
                             <td>
-                                <select name="id_teknisi" class="form-control" required>
-                                    <option value="">Pilih Teknisi</option>
-                                    @foreach($teknisi as $teknisiItem)
-                                        <option value="{{ $teknisiItem->id_teknisi }}">{{ $teknisiItem->nama_teknisi }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <input type="text" id="nama_teknisi" name="nama_teknisi" class="form-control"
+                                    value="{{ Auth::user()->nama_teknisi }}" readonly>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>Tanggal</td>
-                            <td>:</td>
-                            <td><input type="date" name="tanggal_jual" class="form-control"></td>
                         </tr>
                     </table>
 
@@ -125,19 +130,17 @@
                         <tr>
                             <td>Pelanggan</td>
                             <td>:</td>
-                            <td>
+                            <td width="200px">
                                 <select id="id_pelanggan" name="id_pelanggan" class="form-control" required>
                                     <option value="">Pilih Pelanggan</option>
-                                    @foreach($pelanggan as $pelangganItem)
+                                    @foreach ($pelanggan as $pelangganItem)
                                         <option value="{{ $pelangganItem->id_pelanggan }}">
                                             {{ $pelangganItem->nama_pelanggan }}
                                         </option>
                                     @endforeach
                                 </select>
                             </td>
-                        </tr>
-
-                        <tr>
+                            <td width="20px"></td>
                             <td>No HP</td>
                             <td>:</td>
                             <td><input type="text" id="nohp_pelanggan" name="nohp_pelanggan" class="form-control"
@@ -148,34 +151,36 @@
                     <div class="long-line"></div>
 
                     <h5 class="sparepart-label">Sparepart</h5>
-                    <table class="table table-bordered" id="sparepartsTable">
-                        <thead>
-                            <tr>
-                                <th>Jenis Sparepart</th>
-                                <th>Merek</th>
-                                <th>Model</th>
-                                <th>Jumlah</th>
-                                <th>Harga</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input type="text" class="form-control" id="jenis_sparepart"></td>
-                                <td><input type="text" class="form-control" id="merek_sparepart"></td>
-                                <td><input type="text" class="form-control" id="model_sparepart"></td>
-                                <td><input type="number" class="form-control sparepart-jumlah_sparepart_terjual"
-                                        id="jumlah_sparepart_terjual"></td>
-                                <td><input type="text" class="form-control sparepart-harga_sparepart"
-                                        id="harga_sparepart"></td>
-                                <td>
-                                    <button type="button" class="btn btn-success addSparepartButton">Tambah</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div>
+                    <div class="content-frame">
+                        <table class="table table-bordered" id="sparepartsTable">
+                            <thead>
+                                <tr>
+                                    <th>Jenis Sparepart</th>
+                                    <th>Merek</th>
+                                    <th>Model</th>
+                                    <th>Jumlah</th>
+                                    <th>Harga</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="form-control" id="jenis_sparepart"></td>
+                                    <td><input type="text" class="form-control" id="merek_sparepart"></td>
+                                    <td><input type="text" class="form-control" id="model_sparepart"></td>
+                                    <td><input type="number" class="form-control sparepart-jumlah_sparepart_terjual"
+                                            id="jumlah_sparepart_terjual"></td>
+                                    <td><input type="text" class="form-control sparepart-harga_sparepart"
+                                            id="harga_sparepart"></td>
+                                    <td>
+                                        <button type="button"
+                                            class="btn btn-success addSparepartButton">Tambah</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="allbtn">
                         <button type="reset" class="btn btn-secondary me-2">Reset</button>
                         <button type="button" class="btn btn-warning me-2" id=jualButton>Jual</button>
                     </div>
@@ -188,7 +193,8 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="paymentModalLabel">Pembayaran</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
@@ -204,7 +210,8 @@
                                 <label for="change_amount" class="form-label">Kembalian</label>
                                 <p class="form-control-static" id="change_amount">Rp. 0</p>
                             </div>
-                            <button form="form-tambah" type="submit" class="btn btn-primary" id="bayar">Bayar</button>
+                            <button form="form-tambah" type="submit" class="btn btn-primary"
+                                id="bayar">Bayar</button>
                         </div>
                     </div>
                 </div>
@@ -217,25 +224,27 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('#id_pelanggan').on('input', function () {
+        $(document).ready(function() {
+            $('#id_pelanggan').on('input', function() {
                 var nama_pelanggan = $(this).val();
 
                 // Lakukan AJAX request untuk mendapatkan nomor HP pelanggan
                 $.ajax({
-                    url: '/pelanggan/get/' + encodeURIComponent(nama_pelanggan), // encodeURIComponent untuk aman dari karakter spesial
+                    url: '/pelanggan/get/' + encodeURIComponent(
+                        nama_pelanggan), // encodeURIComponent untuk aman dari karakter spesial
                     method: 'GET',
-                    success: function (response) {
-                        $('#nohp_pelanggan').val(response.nohp_pelanggan || ''); // Mengisi nomor HP atau kosong jika tidak ada
+                    success: function(response) {
+                        $('#nohp_pelanggan').val(response.nohp_pelanggan ||
+                            ''); // Mengisi nomor HP atau kosong jika tidak ada
                     },
-                    error: function () {
+                    error: function() {
                         $('#nohp_pelanggan').val(''); // Kosongkan jika ada error
                     }
                 });
             });
         });
 
-        document.getElementById('id_pelanggan').addEventListener('change', async function () {
+        document.getElementById('id_pelanggan').addEventListener('change', async function() {
             const idPelanggan = this.value; // Mengambil nilai dari select (id pelanggan)
             const nohpField = document.getElementById('nohp_pelanggan');
 
@@ -256,15 +265,17 @@
 
 
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             var sparepartIndex = 0;
 
             // Fungsi untuk menghitung total harga secara dinamis
             function calculateTotalPrice() {
                 var total = 0;
-                $('#sparepartsTable tbody tr').each(function () {
-                    var jumlah_sparepart_terjual = parseFloat($(this).find('.sparepart-jumlah_sparepart_terjual').val()) || 0;
-                    var harga_sparepart = parseFloat($(this).find('.sparepart-harga_sparepart').val().replace(/\./g, '').replace(',', '.')) || 0; // Menghapus format
+                $('#sparepartsTable tbody tr').each(function() {
+                    var jumlah_sparepart_terjual = parseFloat($(this).find(
+                        '.sparepart-jumlah_sparepart_terjual').val()) || 0;
+                    var harga_sparepart = parseFloat($(this).find('.sparepart-harga_sparepart').val()
+                        .replace(/\./g, '').replace(',', '.')) || 0; // Menghapus format
                     total += jumlah_sparepart_terjual * harga_sparepart;
                 });
                 $('#harga_total_transaksi_sparepart').val(total.toLocaleString('id-ID'));
@@ -272,19 +283,20 @@
             }
 
             // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
-            $(document).on('input', '.sparepart-jumlah_sparepart_terjual, .sparepart-harga_sparepart', function () {
+            $(document).on('input', '.sparepart-jumlah_sparepart_terjual, .sparepart-harga_sparepart', function() {
                 calculateTotalPrice();
             });
 
             // Event untuk tombol "Jual" membuka modal dan menampilkan total transaksi
-            $('#jualButton').on('click', function () {
+            $('#jualButton').on('click', function() {
                 calculateTotalPrice(); // Pastikan total diperbarui sebelum membuka modal
                 $('#paymentModal').modal('show'); // Tampilkan modal
             });
 
             // Menghitung kembalian saat input pembayaran diubah
-            $('#payment_amount').on('input', function () {
-                const total = parseFloat($('#total_amount_display').text().replace(/\./g, '').replace(',', '.')) || 0;
+            $('#payment_amount').on('input', function() {
+                const total = parseFloat($('#total_amount_display').text().replace(/\./g, '').replace(',',
+                    '.')) || 0;
                 const payment = parseFloat($(this).val().replace(/[^0-9]/g, '') || 0);
                 const change = payment - total;
 
@@ -292,19 +304,21 @@
             });
 
             // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
-            $(document).on('input', '.sparepart-jumlah_sparepart_terjual, .sparepart-harga_sparepart', function () {
+            $(document).on('input', '.sparepart-jumlah_sparepart_terjual, .sparepart-harga_sparepart', function() {
                 calculateTotalPrice(); // Memanggil fungsi perhitungan total
             });
 
             // Tambah baris baru sparepart ke tabel
-            $(document).on('click', '.addSparepartButton', function () {
+            $(document).on('click', '.addSparepartButton', function() {
                 var jenis_sparepart = $('#jenis_sparepart').val();
                 var merek_sparepart = $('#merek_sparepart').val();
                 var model_sparepart = $('#model_sparepart').val();
                 var jumlah_sparepart_terjual = parseFloat($('#jumlah_sparepart_terjual').val());
-                var harga_sparepart = parseFloat($('#harga_sparepart').val().replace(/\./g, '').replace(',', '.'));
+                var harga_sparepart = parseFloat($('#harga_sparepart').val().replace(/\./g, '').replace(',',
+                    '.'));
 
-                if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !isNaN(harga_sparepart)) {
+                if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !
+                    isNaN(harga_sparepart)) {
                     var newRow = `
                         <tr>
                             <td><input type="text" name="spareparts[${sparepartIndex}][jenis_sparepart]" class="form-control" value="${jenis_sparepart}" ></td>
@@ -317,7 +331,8 @@
 
                     $('#sparepartsTable tbody').append(newRow);
                     sparepartIndex++;
-                    $('#jenis_sparepart, #merek_sparepart, #model_sparepart, #jumlah_sparepart_terjual, #harga_sparepart').val('');
+                    $('#jenis_sparepart, #merek_sparepart, #model_sparepart, #jumlah_sparepart_terjual, #harga_sparepart')
+                        .val('');
                     calculateTotalPrice();
                 } else {
                     alert("Semua kolom sparepart harus diisi!");
@@ -325,22 +340,24 @@
             });
 
             // Menghapus baris sparepart
-            $(document).on('click', '.removeSparepartButton', function () {
+            $(document).on('click', '.removeSparepartButton', function() {
                 $(this).closest('tr').remove();
                 calculateTotalPrice();
             });
 
             // Pembersihan data saat submit
-            $('form').on('submit', function () {
+            $('form').on('submit', function() {
                 // Tambahkan sparepart terakhir jika ada yang belum ditambahkan
                 var jenis_sparepart = $('#jenis_sparepart').val();
                 var merek_sparepart = $('#merek_sparepart').val();
                 var model_sparepart = $('#model_sparepart').val();
                 var jumlah_sparepart_terjual = parseFloat($('#jumlah_sparepart_terjual').val());
-                var harga_sparepart = parseFloat($('#harga_sparepart').val().replace(/\./g, '').replace(',', '.'));
+                var harga_sparepart = parseFloat($('#harga_sparepart').val().replace(/\./g, '').replace(',',
+                    '.'));
 
                 // Jika ada data sparepart yang belum ditambahkan
-                if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !isNaN(harga_sparepart)) {
+                if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !
+                    isNaN(harga_sparepart)) {
                     var newRow = `
                         <tr>
                             <td><input type="text" name="spareparts[${sparepartIndex}][jenis_sparepart]" class="form-control" value="${jenis_sparepart}" readonly></td>
@@ -356,13 +373,15 @@
 
                 // Bersihkan format harga untuk total transaksi sebelum disubmit
                 var totalTransaksiInput = $('#harga_total_transaksi_sparepart');
-                var totalBersih = totalTransaksiInput.val().replace(/\./g, '').replace(',', '.'); // Menghapus titik dan mengganti koma
+                var totalBersih = totalTransaksiInput.val().replace(/\./g, '').replace(',',
+                    '.'); // Menghapus titik dan mengganti koma
                 totalTransaksiInput.val(totalBersih); // Set nilai yang bersih
 
                 // Bersihkan harga untuk setiap sparepart sebelum disubmit
-                $('#sparepartsTable tbody tr').each(function () {
+                $('#sparepartsTable tbody tr').each(function() {
                     var hargaInput = $(this).find('.sparepart-harga_sparepart');
-                    var hargaBersih = hargaInput.val().replace(/\./g, '').replace(',', '.'); // Menghapus titik dan mengganti koma
+                    var hargaBersih = hargaInput.val().replace(/\./g, '').replace(',',
+                        '.'); // Menghapus titik dan mengganti koma
                     hargaInput.val(hargaBersih); // Set nilai yang bersih
                 });
             });

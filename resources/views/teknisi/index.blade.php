@@ -36,7 +36,7 @@
             max-width: 100%;
             background-color: #F8F9FA;
             max-height: 500px;
-            overflow-y: scroll; 
+            overflow-y: scroll;
         }
 
         table {
@@ -216,7 +216,12 @@
                             @csrf
                             @method('DELETE')
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-danger">Hapus</button>
+                            @if (Auth::user()->id_teknisi !== $tek->id_teknisi)
+                                <button type="submit" class="btn btn-danger">Hapus</button>
+                            @else
+                                <button type="button" class="btn btn-danger" disabled>Hapus (Tidak
+                                    diizinkan)</button>
+                            @endif
                         </form>
                     </div>
                 </div>

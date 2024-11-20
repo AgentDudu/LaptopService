@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Pelanggan\Pelanggan;
 use App\Models\Sparepart\Sparepart;
 use App\Models\Auth\Teknisi;
@@ -47,7 +48,7 @@ class TransaksiSparepartController extends Controller
         // 1. Simpan data ke tabel TransaksiJualSparepart
         $jualSparepart = TransaksiJualSparepart::create([
             'id_pelanggan' => $request->id_pelanggan,
-            'id_teknisi' => $request->id_teknisi,
+            'id_teknisi' => Auth::user()->id_teknisi,
             'tanggal_jual' => $request->tanggal_jual,
             'harga_total_transaksi_sparepart' => $request->harga_total_transaksi_sparepart,
         ]);

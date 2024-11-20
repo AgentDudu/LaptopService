@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('jangka_garansi_bulan');
             $table->date('akhir_garansi');
             $table->integer('subtotal_servis');
-            $table->integer('subtotal_sparepart');
+            $table->integer('subtotal_sparepart')->nullable();
             $table->timestamps();
         });
     }

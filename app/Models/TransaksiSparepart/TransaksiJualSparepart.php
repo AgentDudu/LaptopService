@@ -23,7 +23,7 @@ class TransaksiJualSparepart extends Model
         parent::boot();
 
         static::creating(function ($transaksiSparepart) {
-            $latestTransaksiSP = static::latest()->first()->id_transaksi_sparepart;
+            $latestTransaksiSP = static::latest('id_transaksi_sparepart')->first();
 
             if (!$latestTransaksiSP) {
                 $nextIdNumber = 1;

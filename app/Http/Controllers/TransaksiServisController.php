@@ -8,7 +8,6 @@ use App\Models\TransaksiServis\JasaServis;
 use App\Models\TransaksiServis\DetailTransaksiServis;
 use App\Models\Sparepart\Sparepart;
 use App\Models\Pelanggan\Pelanggan;
-use App\Models\TransaksiServis\Service;
 use App\Models\Auth\Teknisi;
 use App\Models\Laptop\Laptop;
 use Illuminate\Support\Facades\Log;

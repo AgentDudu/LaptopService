@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\Auth;
     #content-frame {
         max-width: 100%;
         background-color: #F8F9FA;
-        max-height: 80vh;
+        max-height: 78vh;
         overflow-y: scroll;
     }
 

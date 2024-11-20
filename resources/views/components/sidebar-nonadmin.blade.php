@@ -70,7 +70,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                    <a href="{{ route('transaksi_sparepart.index') }}" class="nav-link ps-4 {{ Route::is('sparepart.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
+                    <a href="{{route('transaksi_sparepart.index')}}" class="nav-link ps-4 {{ Route::is('transaksi_sparepart.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                      @include('components.icons.svg-transSparepart')
                             Sparepart
                         </a>

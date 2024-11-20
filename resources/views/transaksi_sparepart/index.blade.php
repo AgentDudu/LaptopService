@@ -33,7 +33,7 @@
         #content-frame {
             max-width: 100%;
             background-color: #F8F9FA;
-            max-height: 460px;
+            max-height: 500px;
             overflow-y: scroll;
         }
 
@@ -65,7 +65,7 @@
 
         <!-- Main Content -->
         <main class="content">
-            <h3><span style="color: black;">Transaksi Sparepart</span></h3>
+            <h3><span style="color: grey;">Transaksi Sparepart</span></h3>
             <hr>
 
             <a href="{{ route('transaksi_sparepart.create') }}" class="btn btn-primary mb-3">Tambah Transaksi
