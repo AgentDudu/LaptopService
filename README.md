@@ -42,6 +42,24 @@ The **Point of Sale Laptop Repair Shop** is a comprehensive POS system designed 
 1. Clone the repository:  
    ```bash
    git clone https://github.com/Evelynboswell/LaptopService.git
+2. Navigate to Project Directory
+3. Install PHP Dependencies
+   ```bash
+   composer install
+5. Install NPM for Front-End Dependencies
+   ```bash
+   npm install
+   npm run dev
+7. Set Up Environment File
+8. Generate Application Key
+   ```bash
+   php artisan key:generate
+10. Run Migrations
+    ```bash
+    php artisan migrate
+12. Start Development Server
+    ```bash
+    php artisan serve
 
 ## Contributing
 
