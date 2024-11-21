@@ -13,11 +13,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        <style>body {
-            background-color: #F8F9FA;
+        body {
+            background-color: white;
         }
 
-        .main-container {
+        /* .main-container {
             display: flex;
             background-color: #067D40;
         }
@@ -25,22 +25,14 @@
         .sidebar {
             width: 260px;
             background-color: #067D40;
-        }
+        } */
 
         .content {
             flex: 1;
             padding: 20px;
             margin: 30px 30px 30px 0;
-            background-color: #F8F9FA;
             border-radius: 20px;
         }
-
-        /* body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            margin: 0;
-            padding: 20px;
-        } */
 
         .header {
             text-align: center;
@@ -117,31 +109,51 @@
         @media print {
 
             /* Hide everything except for the printed content */
-            body * {
-                visibility: hidden;
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 12px;
+                }
+
+                .printable {
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                    height: 100%;
+                    overflow: hidden;
+                }
+
+                /* Remove margins for printing */
+                @page {
+                    size: A4;
+                    margin: 0;
+                }
+
+                /* Ensure header/footer does not cause page breaks */
+                .header,
+                .footer {
+                    margin-top: 0;
+                    margin-bottom: 0;
+                }
+
+                .info-section,
+                .sparepart-section,
+                .total-section {
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .sparepart-section,
+                .total-section {
+                    overflow: hidden;
+                }
             }
 
-            .printable,
-            .printable * {
-                visibility: visible;
-            }
-
-            .header,
-            .footer,
-            .info-section,
-            .sparepart-section,
-            .total-section {
-                margin: 0;
-            }
-
-            .footer {
-                text-align: left;
-                margin-top: 10px;
-            }
-              /* Hide the sidebar for print */
+            /* Hide the sidebar for print
               .sidebar {
                 display: none;
-            }
+            } */
         }
     </style>
 </head>
@@ -149,13 +161,13 @@
 <body>
     <div class="main-container">
         <!-- Sidebar -->
-        <div class="sidebar text-white">
+        {{-- <div class="sidebar text-white">
             @if (Auth::user()->status === 'Pegawai')
                 <x-sidebar-nonadmin />
             @else
                 <x-sidebar-admin />
             @endif
-        </div>
+        </div> --}}
 
         <main class="content">
             <div class="container">
@@ -174,11 +186,11 @@
                     <table>
                         <tr>
                             <td>No. Faktur</td>
-                            <td>: {{$transaksi_sparepart->id_transaksi_sparepart  }}</td>
+                            <td>: {{ $transaksi_sparepart->id_transaksi_sparepart }}</td>
                         </tr>
                         <tr>
                             <td>Tanggal Bayar</td>
-                            <td>: {{$transaksi_sparepart->tanggal_jual }}</td>
+                            <td>: {{ $transaksi_sparepart->tanggal_jual }}</td>
                         </tr>
                         <tr>
                             <td>Nama Pelanggan</td>
@@ -206,7 +218,7 @@
                             @foreach ($transaksi_sparepart->detail_transaksi_sparepart as $detail)
                                 <tr>
                                     <td>{{ $detail->sparepart->jenis_sparepart }}</td>
-                                    <td>{{ $detail->jumlah_sparepart_terjual}}</td>
+                                    <td>{{ $detail->jumlah_sparepart_terjual }}</td>
                                     <td>Rp {{ number_format($detail->sparepart->harga_sparepart, 2, ',', '.') }}</td>
                                     <td>Rp
                                         {{ number_format($detail->jumlah_sparepart_terjual * $detail->sparepart->harga_sparepart, 2, ',', '.') }}
@@ -244,9 +256,9 @@
                 </div>
 
                 <!-- Button Home (Hidden in Print) -->
-                <div>
+                {{-- <div>
                     <a href="{{ route('transaksi_sparepart.index') }}" class="btn btn-success" >Kembali</a>
-                </div>
+                </div> --}}
             </div>
         </main>
     </div>
@@ -258,7 +270,7 @@
     window.print();
 
     // After print is finished, go to home page
-    window.onafterprint = function () {
+    window.onafterprint = function() {
         window.location.href = "{{ route('transaksi_sparepart.index') }}";
     };
 </script>

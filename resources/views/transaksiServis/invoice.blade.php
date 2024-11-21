@@ -1,5 +1,5 @@
 @php
-use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Auth;
 @endphp
 
 <!DOCTYPE html>
@@ -150,7 +150,7 @@ use Illuminate\Support\Facades\Auth;
             </tr>
             <tr>
                 <td>Garansi</td>
-                <td>: 1 Bulan</td> <!-- Hardcoded, modify as needed -->
+                <td>: {{ $transaksiServis->detailTransaksiServis->pluck('jangka_garansi_bulan')->join(', ') }}</td>
             </tr>
             <tr>
                 <td>Tambahan Sparepart</td>

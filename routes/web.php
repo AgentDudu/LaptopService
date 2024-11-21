@@ -33,7 +33,7 @@ Route::get('dashboard', function () {
     return redirect()->route('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Resource--------------------------------------------------------------------------------------------
+// Resource TEKNISI PELANGGAN LAPTOP JASASERVIS--------------------------------------------------------------------------------------------
 Route::resource('teknisi', TeknisiController::class);
 Route::resource('pelanggan', PelangganController::class);
 Route::resource('laptop', LaptopController::class);
@@ -55,6 +55,6 @@ Route::resource('transaksi_sparepart', TransaksiSparepartController::class)->nam
     'destroy' => 'transaksi_sparepart.destroy',
 ]);
 
-// Additional routes
+// Additional routes Transaksi Sparepart
 Route::get('/pelanggan/get/{id_pelanggan}', [PelangganController::class, 'getNoHp'])->name('pelanggan.get');
-Route::get('/transaksi_sparepart/jual/{id_transaksi_sparepart}', [TransaksiSparepartController::class, 'jual'])->name('transaksi_sparepart.jual');
+Route::get('/transaksi_sparepart/{id_transaksi_sparepart}/nota', [TransaksiSparepartController::class, 'nota'])->name('transaksi_sparepart.nota');

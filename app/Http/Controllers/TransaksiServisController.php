@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use App\Models\TransaksiServis\TransaksiServis;
 use App\Models\TransaksiServis\JasaServis;
 use App\Models\TransaksiServis\DetailTransaksiServis;
@@ -10,11 +15,7 @@ use App\Models\Sparepart\Sparepart;
 use App\Models\Pelanggan\Pelanggan;
 use App\Models\Auth\Teknisi;
 use App\Models\Laptop\Laptop;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 
 class TransaksiServisController extends Controller
 {

@@ -23,16 +23,18 @@ class TransaksiJualSparepart extends Model
         parent::boot();
 
         static::creating(function ($transaksiSparepart) {
-            $latestTransaksiSP = static::latest('id_transaksi_sparepart')->first();
+            // Get the latest ID and generate the next one
+            $latestTransaksiSP = static::latest('id_transaksi_sparepart')->value('id_transaksi_sparepart');
 
             if (!$latestTransaksiSP) {
-                $nextIdNumber = 1;
+                $nextIdNumber = 1; 
             } else {
-                $lastId = (int)Str::replaceFirst('TSP', '', $latestTransaksiSP);
+                $lastId = (int) substr($latestTransaksiSP, 3); // Extract numeric part of ID
                 $nextIdNumber = $lastId + 1;
             }
 
-            $transaksiSparepart->id_transaksi_sparepart = 'TSP' . $nextIdNumber;
+            // Format the ID with leading zeros (e.g., TSP001)
+            $transaksiSparepart->id_transaksi_sparepart = 'TSP' . str_pad($nextIdNumber, 3, '0', STR_PAD_LEFT);
         });
     }
 
@@ -53,11 +55,9 @@ class TransaksiJualSparepart extends Model
         return $this->belongsTo(Pelanggan::class, 'id_pelanggan');
     }
 
- 
+
     public function detail_transaksi_sparepart()
     {
         return $this->hasMany(DetailTransaksiSparepart::class, 'id_transaksi_sparepart', 'id_transaksi_sparepart');
     }
 }
-
-

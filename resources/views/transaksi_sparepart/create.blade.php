@@ -62,11 +62,13 @@
         .table tbody tr td {
             vertical-align: middle;
         }
+
         .content-frame {
             height: 200px;
             max-height: 200px;
-            overflow-y: scroll; 
+            overflow-y: scroll;
         }
+
         .allbtn {
             margin-top: 30px;
             position: fixed;
@@ -85,7 +87,7 @@
             @endif
         </div>
         <main class="content">
-            <h3>Tambah Transaksi Sparepart</h3>
+            <h3 style="color: grey">Tambah Transaksi Sparepart</h3>
             <hr>
             <div class="container">
                 <form action="{{ route('transaksi_sparepart.store') }}" method="POST" id="form-tambah">
@@ -102,7 +104,8 @@
 
                             <td>Tanggal</td>
                             <td>:</td>
-                            <td width="200px"><input type="date" name="tanggal_jual" class="form-control" required></td>
+                            <td width="200px"><input type="date" name="tanggal_jual" class="form-control" required>
+                            </td>
                             <td width="300px"></td>
 
                             <td>Total Transaksi</td>
@@ -161,6 +164,7 @@
                                     <th>Model</th>
                                     <th>Jumlah</th>
                                     <th>Harga</th>
+                                    <th>Subtotal</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -171,8 +175,11 @@
                                     <td><input type="text" class="form-control" id="model_sparepart"></td>
                                     <td><input type="number" class="form-control sparepart-jumlah_sparepart_terjual"
                                             id="jumlah_sparepart_terjual"></td>
-                                    <td><input type="text" class="form-control sparepart-harga_sparepart"
+                                    <td><input type="number" class="form-control sparepart-harga_sparepart"
                                             id="harga_sparepart"></td>
+                                    <td><input type="text" class="form-control sparepart-subtotal" id="subtotal"
+                                            readonly>
+                                    </td>
                                     <td>
                                         <button type="button"
                                             class="btn btn-success addSparepartButton">Tambah</button>
@@ -203,14 +210,15 @@
                             </div>
                             <div class="mb-3">
                                 <label for="pembayaran" class="form-label">Pembayaran</label>
-                                <input type="text" class="form-control" id="pembayaran" name="pembayaran" required>
+                                <input type="number" class="form-control" id="pembayaran" name="pembayaran"
+                                    required>
                             </div>
                             <div class="mb-3">
                                 <label for="kembalian" class="form-label">Kembalian</label>
                                 <p class="form-control-static" id="kembalian">Rp. 0</p>
                             </div>
                             <button form="form-tambah" type="submit" class="btn btn-primary"
-                                id="bayar">Bayar</button>
+                                id="bayarButton" onclick="window.location='{{ route('transaksi_sparepart.index') }}'">Bayar & Cetak</button>
                         </div>
                     </div>
                 </div>
@@ -268,6 +276,7 @@
         $(document).ready(function() {
             var sparepartIndex = 0;
 
+            // Fungsi untuk menghitung total harga secara dinamis
             function calculateTotalPrice() {
                 var total = 0;
                 $('#sparepartsTable tbody tr').each(function() {
@@ -275,10 +284,16 @@
                         '.sparepart-jumlah_sparepart_terjual').val()) || 0;
                     var harga_sparepart = parseFloat($(this).find('.sparepart-harga_sparepart').val()
                         .replace(/\./g, '').replace(',', '.')) || 0; // Menghapus format
-                    total += jumlah_sparepart_terjual * harga_sparepart;
+                    var subtotal = jumlah_sparepart_terjual * harga_sparepart;
+
+                    // Set nilai subtotal untuk baris saat ini
+                    $(this).find('.sparepart-subtotal').val(`${subtotal.toLocaleString('id-ID')}`);
+
+                    // Tambahkan ke total transaksi
+                    total += subtotal;
                 });
-                $('#harga_total_transaksi_sparepart').val(total.toLocaleString('id-ID'));
-                $('#total_amount_display').text(total.toLocaleString('id-ID')); // Set total ke modal
+                $('#harga_total_transaksi_sparepart').val(`${total.toLocaleString('id-ID')}`);
+                $('#total_amount_display').text(`${total.toLocaleString('id-ID')}`); // Set total ke modal
             }
 
             // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
@@ -293,15 +308,16 @@
             });
 
             // Menghitung kembalian saat input pembayaran diubah
-            $('#payment_amount').on('input', function() {
+            $('#pembayaran').on('input', function() {
                 const total = parseFloat($('#total_amount_display').text().replace(/\./g, '').replace(',',
                     '.')) || 0;
                 const payment = parseFloat($(this).val().replace(/[^0-9]/g, '') || 0);
                 const change = payment - total;
 
-                // Pastikan kembalian selalu bernilai positif atau 0
-                $('#kembalian').text('Rp. ' + (change > 0 ? change : 0).toLocaleString('id-ID'));
+                // Display the calculated change
+                $('#kembalian').text('Rp. ' + (change >= 0 ? change : 0).toLocaleString('id-ID'));
             });
+
 
             // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
             $(document).on('input', '.sparepart-jumlah_sparepart_terjual, .sparepart-harga_sparepart', function() {
@@ -319,6 +335,8 @@
 
                 if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !
                     isNaN(harga_sparepart)) {
+                    var subtotal = jumlah_sparepart_terjual * harga_sparepart;
+
                     var newRow = `
                         <tr>
                             <td><input type="text" name="spareparts[${sparepartIndex}][jenis_sparepart]" class="form-control" value="${jenis_sparepart}" ></td>
@@ -335,6 +353,7 @@
                     sparepartIndex++;
                     $('#jenis_sparepart, #merek_sparepart, #model_sparepart, #jumlah_sparepart_terjual, #harga_sparepart')
                         .val('');
+                    $('#subtotal')
                     calculateTotalPrice();
                 } else {
                     alert("Semua kolom sparepart harus diisi!");
@@ -360,6 +379,8 @@
                 // Jika ada data sparepart yang belum ditambahkan
                 if (jenis_sparepart && merek_sparepart && model_sparepart && jumlah_sparepart_terjual && !
                     isNaN(harga_sparepart)) {
+                    var subtotal = jumlah_sparepart_terjual * harga_sparepart;
+
                     var newRow = `
                         <tr>
                             <td><input type="text" name="spareparts[${sparepartIndex}][jenis_sparepart]" class="form-control" value="${jenis_sparepart}" readonly></td>
@@ -389,22 +410,23 @@
                     hargaInput.val(hargaBersih); // Set nilai yang bersih
                 });
             });
+
             function processPayment() {
-        // Simulasikan proses pembayaran (misalnya, simpan data ke server)
-        // Dalam implementasi nyata, Anda bisa menggunakan AJAX untuk menyimpan data tanpa refresh
+                // Simulasikan proses pembayaran (misalnya, simpan data ke server)
+                // Dalam implementasi nyata, Anda bisa menggunakan AJAX untuk menyimpan data tanpa refresh
 
-        // Misal, tampilkan pesan berhasil terlebih dahulu (opsional)
-        alert("Pembayaran berhasil!");
+                // Misal, tampilkan pesan berhasil terlebih dahulu (opsional)
+                alert("Pembayaran berhasil!");
 
-        // Mengubah tombol "Bayar" menjadi "Cetak Nota"
-        let bayarButton = document.getElementById("bayarButton");
-        bayarButton.innerHTML = "Cetak Nota";
-        bayarButton.classList.remove("btn-primary"); // Menghapus kelas btn-primary
-        bayarButton.classList.add("btn-success"); // Mengubah warna tombol menjadi hijau
-        bayarButton.onclick = function() {
-            window.print(); // Fungsi cetak ketika tombol diklik
-        };
-    }
+                // Mengubah tombol "Bayar" menjadi "Cetak Nota"
+                let bayarButton = document.getElementById("bayarButton");
+                bayarButton.innerHTML = "Cetak Nota";
+                bayarButton.classList.remove("btn-primary"); // Menghapus kelas btn-primary
+                bayarButton.classList.add("btn-success"); // Mengubah warna tombol menjadi hijau
+                bayarButton.onclick = function() {
+                    window.print(); // Fungsi cetak ketika tombol diklik
+                };
+            }
         });
     </script>
 

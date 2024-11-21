@@ -32,7 +32,7 @@ class TransaksiServis extends Model
                 $nextIdNumber = $lastId + 1;
             }
 
-            $transaksiServis->id_service = 'TSV' . $nextIdNumber; // Use id_service instead of id_jasa
+            $transaksiServis->id_service = 'TSV' . $nextIdNumber; 
         });
     }
 
