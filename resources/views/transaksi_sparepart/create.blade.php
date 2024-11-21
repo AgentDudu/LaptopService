@@ -292,8 +292,8 @@
                     // Tambahkan ke total transaksi
                     total += subtotal;
                 });
-                $('#harga_total_transaksi_sparepart').val(`${total.toLocaleString('id-ID')}`);
-                $('#total_amount_display').text(`${total.toLocaleString('id-ID')}`); // Set total ke modal
+                $('#harga_total_transaksi_sparepart').val(total.toLocaleString('id-ID'));
+                $('#total_amount_display').text(total.toLocaleString('id-ID')); // Set total ke modal
             }
 
             // Setiap kali input pada kolom harga atau jumlah berubah, otomatis hitung total transaksi
