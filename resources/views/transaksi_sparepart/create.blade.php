@@ -345,7 +345,7 @@
                             <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart_terjual]" class="form-control sparepart-jumlah_sparepart_terjual" value="${jumlah_sparepart_terjual}" ></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][harga_sparepart]" class="form-control sparepart-harga_sparepart" value="${harga_sparepart}" ></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][subtotal]" class="form-control sparepart-subtotal" value="${subtotal}" ></td>
-                        
+
                             <td><button type="button" class="btn btn-danger removeSparepartButton">Hapus</button></td>
                         </tr>`;
 
@@ -389,7 +389,7 @@
                             <td><input type="number" name="spareparts[${sparepartIndex}][jumlah_sparepart_terjual]" class="form-control sparepart-jumlah_sparepart_terjual" value="${jumlah_sparepart_terjual}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][harga_sparepart]" class="form-control sparepart-harga_sparepart" value="${harga_sparepart}" readonly></td>
                             <td><input type="text" name="spareparts[${sparepartIndex}][subtotal]" class="form-control sparepart-subtotal" value="${subtotal}" readonly></td>
-                        
+
                         </tr>`;
 
                     $('#sparepartsTable tbody').append(newRow);

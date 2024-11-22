@@ -6,6 +6,7 @@ use App\Http\Controllers\LaptopController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\JasaServisController;
+use App\Http\Controllers\LaporanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -58,3 +59,5 @@ Route::resource('transaksi_sparepart', TransaksiSparepartController::class)->nam
 // Additional routes Transaksi Sparepart
 Route::get('/pelanggan/get/{id_pelanggan}', [PelangganController::class, 'getNoHp'])->name('pelanggan.get');
 Route::get('/transaksi_sparepart/{id_transaksi_sparepart}/nota', [TransaksiSparepartController::class, 'nota'])->name('transaksi_sparepart.nota');
+
+Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');

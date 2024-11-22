@@ -1,5 +1,5 @@
 @php
-    use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth;
 @endphp
 
 <!DOCTYPE html>
@@ -9,270 +9,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nota Penjualan Sparepart</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         body {
-            background-color: white;
-        }
-
-        /* .main-container {
-            display: flex;
-            background-color: #067D40;
-        }
-
-        .sidebar {
-            width: 260px;
-            background-color: #067D40;
-        } */
-
-        .content {
-            flex: 1;
-            padding: 20px;
-            margin: 30px 30px 30px 0;
-            border-radius: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .header h1 {
-            font-size: 16px;
+            font-size: 14px;
             margin: 0;
             font-weight: bold;
         }
 
         .header p {
-            margin: 3px 0;
+            margin: 2px 0;
             font-size: 10px;
         }
 
-        .info-section,
-        .sparepart-section,
-        .total-section {
-            margin-bottom: 15px;
+        .info-section, .sparepart-section, .total-section {
+            margin-bottom: 10px;
         }
 
-        .info-section table,
-        .sparepart-section table,
-        .total-section table {
+        .info-section table, .sparepart-section table, .total-section table {
             width: 100%;
             border-collapse: collapse;
             font-size: 12px;
         }
 
-        .info-section td,
-        .sparepart-section td,
-        .sparepart-section th,
-        .total-section td {
+        .info-section td, .sparepart-section td, .sparepart-section th, .total-section td {
             padding: 5px;
-            vertical-align: top;
-        }
-
-        .info-section td:first-child {
-            width: 100px;
         }
 
         .sparepart-section th {
-            text-align: left;
+            border-bottom: 1px solid #000;
         }
 
-        .sparepart-section td,
-        .sparepart-section th {
+        .sparepart-section td, .sparepart-section th {
             border-bottom: 1px solid #ddd;
         }
 
-        .total-section td {
-            padding-top: 5px;
-        }
-
         .footer {
-            margin-top: 20px;
             text-align: right;
             font-size: 12px;
+            margin-top: 20px;
         }
 
-        .footer .teknisi {
-            margin-top: 10px;
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid black;
-            margin: 10px 0;
-        }
-
-        /* Style for print */
-        @media print {
-
-            /* Hide everything except for the printed content */
-            @media print {
-                body {
-                    margin: 0;
-                    padding: 0;
-                    font-size: 12px;
-                }
-
-                .printable {
-                    margin: 0;
-                    padding: 0;
-                    width: 100%;
-                    height: 100%;
-                    overflow: hidden;
-                }
-
-                /* Remove margins for printing */
-                @page {
-                    size: A4;
-                    margin: 0;
-                }
-
-                /* Ensure header/footer does not cause page breaks */
-                .header,
-                .footer {
-                    margin-top: 0;
-                    margin-bottom: 0;
-                }
-
-                .info-section,
-                .sparepart-section,
-                .total-section {
-                    margin: 0;
-                    padding: 0;
-                }
-
-                .sparepart-section,
-                .total-section {
-                    overflow: hidden;
-                }
-            }
-
-            /* Hide the sidebar for print
-              .sidebar {
-                display: none;
-            } */
+        .footer p {
+            margin: 2px 0;
         }
     </style>
 </head>
 
 <body>
-    <div class="main-container">
-        <!-- Sidebar -->
-        {{-- <div class="sidebar text-white">
-            @if (Auth::user()->status === 'Pegawai')
-                <x-sidebar-nonadmin />
-            @else
-                <x-sidebar-admin />
-            @endif
-        </div> --}}
-
-        <main class="content">
-            <div class="container">
-                <!-- Header Section -->
-                <div class="header printable">
-                    <h1>NOTA PENJUALAN SPAREPART</h1>
-                    <p>Laptop Cafe Jogjakarta</p>
-                    <p>Pusat sparepart repair, upgrade, jual beli laptop second jogja dan cafe.</p>
-                    <p>Jl. Paingan, Krodan, Maguwoharjo - Jogjakarta.</p>
-                    <p>Telp. WA 085771565199</p>
-                    <hr>
-                </div>
-
-                <!-- Information Section -->
-                <div class="info-section printable">
-                    <table>
-                        <tr>
-                            <td>No. Faktur</td>
-                            <td>: {{ $transaksi_sparepart->id_transaksi_sparepart }}</td>
-                        </tr>
-                        <tr>
-                            <td>Tanggal Bayar</td>
-                            <td>: {{ $transaksi_sparepart->tanggal_jual }}</td>
-                        </tr>
-                        <tr>
-                            <td>Nama Pelanggan</td>
-                            <td>: {{ $transaksi_sparepart->pelanggan->nama_pelanggan }}</td>
-                        </tr>
-                        <tr>
-                            <td>No. HP</td>
-                            <td>: {{ $transaksi_sparepart->pelanggan->nohp_pelanggan }}</td>
-                        </tr>
-                    </table>
-                </div>
-
-                <!-- Sparepart Data Section -->
-                <div class="sparepart-section printable">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Nama Produk</th>
-                                <th>Qty</th>
-                                <th>Harga</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($transaksi_sparepart->detail_transaksi_sparepart as $detail)
-                                <tr>
-                                    <td>{{ $detail->sparepart->jenis_sparepart }}</td>
-                                    <td>{{ $detail->jumlah_sparepart_terjual }}</td>
-                                    <td>Rp {{ number_format($detail->sparepart->harga_sparepart, 2, ',', '.') }}</td>
-                                    <td>Rp
-                                        {{ number_format($detail->jumlah_sparepart_terjual * $detail->sparepart->harga_sparepart, 2, ',', '.') }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Payment and Change Section -->
-                <div class="total-section printable">
-                    <table>
-                        <tr>
-                            <td>Harga Total</td>
-                            <td>: Rp.
-                                {{ number_format($transaksi_sparepart->harga_total_transaksi_sparepart, 0, ',', '.') }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Pembayaran</strong></td>
-                            <td>: Rp. {{ number_format($pembayaran, 0, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Kembalian</strong></td>
-                            <td>: Rp. {{ number_format($kembalian, 0, ',', '.') }}</td>
-                        </tr>
-                    </table>
-                </div>
-
-                <!-- Footer Section -->
-                <div class="footer printable">
-                    <p>Teknisi</p>
-                    <p class="teknisi">{{ Auth::user()->nama_teknisi }}</p>
-                </div>
-
-                <!-- Button Home (Hidden in Print) -->
-                {{-- <div>
-                    <a href="{{ route('transaksi_sparepart.index') }}" class="btn btn-success" >Kembali</a>
-                </div> --}}
-            </div>
-        </main>
+    <div class="header">
+        <h1>NOTA PENJUALAN SPAREPART</h1>
+        <p>Laptop Cafe Jogjakarta</p>
+        <p>Pusat sparepart repair, upgrade, jual beli laptop second jogja dan cafe.</p>
+        <p>Jl. Paingan, Krodan, Maguwoharjo - Jogjakarta.</p>
+        <p>Telp. WA 085771565199</p>
+        <hr>
     </div>
 
+    <div class="info-section">
+        <table>
+            <tr>
+                <td>No. Faktur</td>
+                <td>: {{ $transaksi_sparepart->id_transaksi_sparepart }}</td>
+            </tr>
+            <tr>
+                <td>Tanggal Bayar</td>
+                <td>: {{ $transaksi_sparepart->tanggal_jual }}</td>
+            </tr>
+            <tr>
+                <td>Nama Pelanggan</td>
+                <td>: {{ $transaksi_sparepart->pelanggan->nama_pelanggan }}</td>
+            </tr>
+            <tr>
+                <td>No. HP</td>
+                <td>: {{ $transaksi_sparepart->pelanggan->nohp_pelanggan }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="sparepart-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Produk</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($transaksi_sparepart->detail_transaksi_sparepart as $detail)
+                    <tr>
+                        <td>{{ $detail->sparepart->jenis_sparepart }}</td>
+                        <td>{{ $detail->jumlah_sparepart_terjual }}</td>
+                        <td>Rp {{ number_format($detail->sparepart->harga_sparepart, 2, ',', '.') }}</td>
+                        <td>Rp {{ number_format($detail->jumlah_sparepart_terjual * $detail->sparepart->harga_sparepart, 2, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <div class="total-section">
+        <table>
+            <tr>
+                <td>Harga Total</td>
+                <td>: Rp {{ number_format($transaksi_sparepart->harga_total_transaksi_sparepart, 0, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <td>Pembayaran</td>
+                <td>: Rp {{ number_format($pembayaran, 0, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <td>Kembalian</td>
+                <td>: Rp {{ number_format($kembalian, 0, ',', '.') }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Teknisi: {{ Auth::user()->nama_teknisi }}</p>
+    </div>
 </body>
-
-<script>
-    // Trigger print window
-    window.print();
-
-    // After print is finished, go to home page
-    window.onafterprint = function() {
-        window.location.href = "{{ route('transaksi_sparepart.index') }}";
-    };
-</script>
 
 </html>

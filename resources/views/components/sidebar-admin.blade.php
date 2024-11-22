@@ -126,11 +126,12 @@
     </div>
 </li>
 <li>
-    <a href="#" class="nav-link text-white inactive">
-        @include('components.icons.svg-laporan')
-        Laporan Transaksi
-    </a>
-</li>
+        <a href="{{ route('laporan.index') }}"
+            class="nav-link text-white ps-4 {{ Route::is('laporan.*') ? 'text-white bg-custom rounded active' : '' }}">
+            @include('components.icons.svg-laporan')
+            Laporan Transaksi
+        </a>
+    </li>
 <li>
     <form method="POST" action="{{ route('logout') }}">
         @csrf
