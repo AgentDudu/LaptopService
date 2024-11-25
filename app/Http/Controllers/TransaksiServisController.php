@@ -274,10 +274,12 @@ class TransaksiServisController extends Controller
 
         $verifySSL = app()->environment('production');
 
+        $fonnteToken = config('services.fonnte.token');
+
         $fonnteResponse = Http::withOptions([
             'verify' => $verifySSL
         ])->withHeaders([
-            'Authorization' => 'Bearer UEwrMacTPxf167ykGu7R'
+            'Authorization' => "Bearer {$fonnteToken}"
         ])->post('https://api.fonnte.com/send', [
             'target' => $whatsappNumber,
             'message' => $messageText,
