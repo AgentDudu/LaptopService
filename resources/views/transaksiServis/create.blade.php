@@ -137,24 +137,18 @@ use Illuminate\Support\Facades\Auth;
                             <h5>Pelanggan</h5>
                             <div class="mb-2 d-flex align-items-center">
                                 <label for="nama_pelanggan" class="form-label" style="width: 80px;">Nama</label>
-                                <input list="pelanggan-options" name="nama_pelanggan" id="pelanggan-input"
-                                    class="form-control" placeholder="Pilih atau ketik nama pelanggan">
+                                <input list="pelanggan-options" name="nama_pelanggan" id="pelanggan-input" class="form-control" placeholder="Pilih atau ketik nama pelanggan">
                                 <datalist id="pelanggan-options">
                                     @foreach ($pelanggan as $pel)
-                                    <option value="{{ $pel->nama_pelanggan }}"></option>
+                                        <option value="{{ $pel->nama_pelanggan }}"></option>
                                     @endforeach
                                 </datalist>
                             </div>
 
                             <div class="mb-2 d-flex align-items-center">
                                 <label for="nohp_pelanggan" class="form-label" style="width: 80px;">No. HP</label>
-                                <input list="nohp-options" name="nohp_pelanggan" id="nohp_pelanggan-input"
-                                    class="form-control" placeholder="Pilih atau ketik no. HP">
-                                <datalist id="nohp-options">
-                                    @foreach ($pelanggan as $pel)
-                                    <option value="{{ $pel->nohp_pelanggan }}">
-                                        @endforeach
-                                </datalist>
+                                <input list="nohp-options" name="nohp_pelanggan" id="nohp_pelanggan-input" class="form-control" placeholder="Pilih atau ketik no. HP">
+                                <datalist id="nohp-options"></datalist>
                             </div>
                         </div>
 
@@ -163,24 +157,14 @@ use Illuminate\Support\Facades\Auth;
                             <h5>Laptop</h5>
                             <div class="mb-2 d-flex align-items-center">
                                 <label for="merek_laptop" class="form-label" style="width: 80px;">Merek</label>
-                                <input list="laptop-options" name="merek_laptop" id="merek_laptop-input"
-                                    class="form-control" placeholder="Pilih atau ketik merek laptop">
-                                <datalist id="laptop-options">
-                                    @foreach ($laptops as $laptop)
-                                    <option value="{{ $laptop->merek_laptop }}">
-                                        @endforeach
-                                </datalist>
+                                <input list="laptop-options" name="merek_laptop" id="merek_laptop-input" class="form-control" placeholder="Pilih atau ketik merek laptop">
+                                <datalist id="laptop-options"></datalist>
                             </div>
 
                             <div class="mb-4 d-flex align-items-center">
                                 <label for="keluhan" class="form-label" style="width: 80px;">Keluhan</label>
-                                <input list="keluhan-options" name="keluhan" id="keluhan-input" class="form-control"
-                                    placeholder="Pilih atau ketik keluhan">
-                                <datalist id="keluhan-options">
-                                    @foreach ($laptops as $laptop)
-                                    <option value="{{ $laptop->deskripsi_masalah }}">
-                                        @endforeach
-                                </datalist>
+                                <input list="keluhan-options" name="keluhan" id="keluhan-input" class="form-control" placeholder="Pilih atau ketik keluhan">
+                                <datalist id="keluhan-options"></datalist>
                             </div>
                         </div>
 
@@ -272,52 +256,80 @@ use Illuminate\Support\Facades\Auth;
 
     <!-- Filter Data Pelanggan -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const pelangganSelect = document.getElementById('pelanggan-input');
-        const noHpSelect = document.getElementById('nohp_pelanggan-input');
-        const merekSelect = document.getElementById('merek_laptop-input');
-        const keluhanSelect = document.getElementById('keluhan-input');
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get references to all the relevant fields
+            const pelangganInput = document.getElementById('pelanggan-input');
+            const noHpInput = document.getElementById('nohp_pelanggan-input');
+            const merekInput = document.getElementById('merek_laptop-input');
+            const keluhanInput = document.getElementById('keluhan-input');
 
-        const laptopsData = @json($laptops);
-        const pelangganData = @json($pelanggan);
+            // Parse the data for laptops and customers
+            const laptopsData = @json($laptops);
+            const pelangganData = @json($pelanggan);
 
-        function resetAndPopulate(selectElement, options, placeholder) {
-            selectElement.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
-            options.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option.value;
-                optionElement.textContent = option.text;
-                selectElement.appendChild(optionElement);
-            });
-        }
-
-        pelangganSelect.addEventListener('change', function() {
-            const selectedPelangganId = parseInt(pelangganSelect.value);
-
-            const filteredPelanggan = pelangganData.find(pelanggan => pelanggan.id_pelanggan ===
-                selectedPelangganId);
-            if (filteredPelanggan) {
-                resetAndPopulate(noHpSelect, [{
-                    value: filteredPelanggan.nohp_pelanggan,
-                    text: filteredPelanggan.nohp_pelanggan
-                }], 'Pilih No. HP');
+            // Function to reset and populate datalist options
+            function resetAndPopulateDatalist(inputElement, dataListId, options) {
+                const dataList = document.getElementById(dataListId);
+                dataList.innerHTML = ''; // Clear the existing options
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option;
+                    dataList.appendChild(optionElement);
+                });
             }
 
-            const filteredLaptops = laptopsData.filter(laptop => laptop.id_pelanggan ===
-                selectedPelangganId);
-            const merekOptions = filteredLaptops.map(laptop => ({
-                value: laptop.merek_laptop,
-                text: laptop.merek_laptop
-            }));
-            const keluhanOptions = filteredLaptops.map(laptop => ({
-                value: laptop.deskripsi_masalah,
-                text: laptop.deskripsi_masalah
-            }));
+            // Event listener for when a customer is selected or typed
+            pelangganInput.addEventListener('input', function () {
+                const selectedCustomer = pelangganData.find(pel => pel.nama_pelanggan === pelangganInput.value);
 
-            resetAndPopulate(merekSelect, merekOptions, 'Pilih Merek Laptop');
-            resetAndPopulate(keluhanSelect, keluhanOptions, 'Pilih Keluhan');
+                if (selectedCustomer) {
+                    // Filter options for `No HP`, `Merek`, and `Keluhan`
+                    resetAndPopulateDatalist(
+                        noHpInput,
+                        'nohp-options',
+                        [selectedCustomer.nohp_pelanggan]
+                    );
+
+                    const filteredLaptops = laptopsData.filter(laptop => laptop.id_pelanggan === selectedCustomer.id_pelanggan);
+
+                    resetAndPopulateDatalist(
+                        merekInput,
+                        'laptop-options',
+                        filteredLaptops.map(laptop => laptop.merek_laptop)
+                    );
+
+                    resetAndPopulateDatalist(
+                        keluhanInput,
+                        'keluhan-options',
+                        filteredLaptops.map(laptop => laptop.deskripsi_masalah)
+                    );
+                } else {
+                    // Reset all fields if no customer matches
+                    resetAndPopulateDatalist(noHpInput, 'nohp-options', []);
+                    resetAndPopulateDatalist(merekInput, 'laptop-options', []);
+                    resetAndPopulateDatalist(keluhanInput, 'keluhan-options', []);
+                }
+            });
+
+            // Allow typing manually by clearing the datalist values when fields are edited
+            noHpInput.addEventListener('input', function () {
+                if (!noHpInput.value) {
+                    resetAndPopulateDatalist(noHpInput, 'nohp-options', []);
+                }
+            });
+
+            merekInput.addEventListener('input', function () {
+                if (!merekInput.value) {
+                    resetAndPopulateDatalist(merekInput, 'laptop-options', []);
+                }
+            });
+
+            keluhanInput.addEventListener('input', function () {
+                if (!keluhanInput.value) {
+                    resetAndPopulateDatalist(keluhanInput, 'keluhan-options', []);
+                }
+            });
         });
-    });
     </script>
 
     <!-- Generate Garansi -->
