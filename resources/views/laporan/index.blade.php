@@ -119,7 +119,7 @@
                 <div class="filter-fields">
                     <div class="filter-row">
                         <label for="tipeTransaksi">Tipe Transaksi:</label>
-                        <select id="tipeTransaksi" onchange="filterTransactions()" style="width: 175px;">
+                        <select id="tipeTransaksi" style="width: 175px;">
                             <option value="All">All</option>
                             <option value="Servis">Servis</option>
                             <option value="Penjualan Sparepart">Penjualan Sparepart</option>
@@ -167,45 +167,57 @@
                         </tr>
                     </thead>
                     <tbody id="transactionTable">
-                        @php $no = 1; @endphp
-                        @foreach ($transactions as $transaction)
-                            <tr data-type="{{ $transaction['type'] }}">
-                                <td>{{ $no++ }}</td>
-                                <td>{{ $transaction['id'] }}</td>
-                                <td>{{ $transaction['type'] }}</td>
-                                <td>{{ $transaction['date'] }}</td>
-                                <td>Rp. {{ number_format($transaction['amount'], 0, ',', '.') }}</td>
+                        @if ($transactions->isEmpty())
+                            <tr>
+                                <td colspan="5" class="text-center">Tidak ada data untuk periode dan tipe transaksi
+                                    yang dipilih.</td>
                             </tr>
-                        @endforeach
+                        @else
+                            @php $no = 1; @endphp
+                            @foreach ($transactions as $transaction)
+                                <tr data-type="{{ $transaction['type'] }}">
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $transaction['id'] }}</td>
+                                    <td>{{ $transaction['type'] }}</td>
+                                    <td>{{ $transaction['date'] }}</td>
+                                    <td>Rp. {{ number_format($transaction['amount'], 0, ',', '.') }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
         </main>
     </div>
-
     <script>
-        function filterTransactions() {
-            const typeFilter = document.getElementById('tipeTransaksi').value;
-            const rows = document.querySelectorAll('#transactionTable tr');
-
-            rows.forEach(row => {
-                const type = row.getAttribute('data-type');
-                if (typeFilter === 'All' || type === typeFilter) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
         function applyFilters() {
-            const bulan = document.getElementById('bulan').value;
-            const tahun = document.getElementById('tahun').value;
+            const type = document.getElementById('tipeTransaksi').value;
+            const month = document.getElementById('bulan').value;
+            const year = document.getElementById('tahun').value;
+            if (!type) {
+                alert('Pilih tipe transaksi!');
+                return;
+            }
             const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('month', bulan);
-            urlParams.set('year', tahun);
+            urlParams.set('type', type);
+            urlParams.set('month', month);
+            urlParams.set('year', year);
             window.location.search = urlParams.toString();
         }
+
+        function setFilterValues() {
+            const urlParams = new URLSearchParams(window.location.search);
+            // Retrieve values from the URL parameters
+            const type = urlParams.get('type') || 'All';
+            const month = urlParams.get('month') || new Date().getMonth() + 1;
+            const year = urlParams.get('year') || new Date().getFullYear();
+            // Set the selected values
+            document.getElementById('tipeTransaksi').value = type;
+            document.getElementById('bulan').value = month;
+            document.getElementById('tahun').value = year;
+        }
+        // Call the function to set filter values on page load
+        document.addEventListener('DOMContentLoaded', setFilterValues);
     </script>
 </body>
 

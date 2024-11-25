@@ -50,7 +50,7 @@
         .sparepart-label {
             font-size: 1.4rem;
             font-weight: 500;
-            color: #6c757d;
+            color: black;
         }
 
         .long-line {

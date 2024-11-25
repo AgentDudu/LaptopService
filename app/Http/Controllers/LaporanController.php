@@ -12,9 +12,11 @@ class LaporanController extends Controller
     {
         $month = $request->get('month', date('m'));
         $year = $request->get('year', date('Y'));
+        $type = $request->get('type', 'All'); 
 
         $serviceTransactions = TransaksiServis::whereMonth('tanggal_masuk', $month)
             ->whereYear('tanggal_masuk', $year)
+            ->where('status_bayar', 'Sudah dibayar')
             ->get()
             ->map(function ($transaction) {
                 return [
@@ -37,7 +39,14 @@ class LaporanController extends Controller
                 ];
             });
 
-        $transactions = $serviceTransactions->merge($sparepartTransactions)->sortBy('date');
+        $transactions = $serviceTransactions->merge($sparepartTransactions);
+
+        if ($type !== 'All') {
+            $transactions = $transactions->filter(function ($transaction) use ($type) {
+                return $transaction['type'] === $type;
+            });
+        }
+        $transactions = $transactions->sortBy('date');
         $totalProfit = $transactions->sum('amount');
 
         return view('laporan.index', [
