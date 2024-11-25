@@ -17,18 +17,23 @@
             display: flex;
             background-color: #067D40;
         }
+        .container {
+            max-width: 100%;
+            margin-left: 0px;
+        }
 
         .sidebar {
-            width: 260px;
+            width: 245px;
             background-color: #067D40;
         }
 
         .content {
             flex: 1;
             padding: 20px;
-            margin: 30px 30px 30px 0;
+            margin: 20px 20px 20px 0;
             background-color: #F8F9FA;
             border-radius: 20px;
+            max-height: 85%;
         }
 
         .form-control,
@@ -64,14 +69,15 @@
         }
 
         .content-frame {
-            height: 200px;
-            max-height: 200px;
+            width: 100%;
+            height: 40vh;
+            max-height: 40vh;
             overflow-y: scroll;
         }
 
         .allbtn {
-            margin-top: 30px;
-            position: fixed;
+            margin-top: 5px;
+            position: relative;
         }
     </style>
 </head>
@@ -106,7 +112,7 @@
                             <td>:</td>
                             <td width="200px"><input type="date" name="tanggal_jual" class="form-control" required>
                             </td>
-                            <td width="300px"></td>
+                            <td width="42%"></td>
 
                             <td>Total Transaksi</td>
                             <td>
