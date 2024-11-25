@@ -63,13 +63,13 @@
             border-radius: 8px;
             background-color: #fff;
             font-weight: bold;
-            font-size: 16px;
-            width: 300px;
+            font-size: 24px;
+            width: 500px;
             height: 80px;
         }
 
         .total-container span {
-            font-size: 18px;
+            font-size: 24px;
             font-weight: bold;
             margin-left: 10px;
         }
@@ -119,7 +119,7 @@
                 <div class="filter-fields">
                     <div class="filter-row">
                         <label for="tipeTransaksi">Tipe Transaksi:</label>
-                        <select id="tipeTransaksi" onchange="filterTransactions()">
+                        <select id="tipeTransaksi" onchange="filterTransactions()" style="width: 175px;">
                             <option value="All">All</option>
                             <option value="Servis">Servis</option>
                             <option value="Penjualan Sparepart">Penjualan Sparepart</option>
@@ -127,7 +127,7 @@
                     </div>
                     <div class="filter-row">
                         <label for="periode">Periode:</label>
-                        <select id="bulan">
+                        <select id="bulan" style="margin-left: 47px;">
                             @for ($i = 1; $i <= 12; $i++)
                                 <option value="{{ $i }}" {{ $i == date('m') ? 'selected' : '' }}>
                                     {{ date('F', mktime(0, 0, 0, $i, 1)) }}
@@ -141,14 +141,14 @@
                                 </option>
                             @endfor
                         </select>
-                        <button class="btn btn-primary" onclick="applyFilters()">Cari</button>
+                        <button class="btn btn-primary" onclick="applyFilters()" style="width: 50px;">Cari</button>
                     </div>
                 </div>
 
                 <!-- Total Container -->
                 <div class="total-container">
                     <div>
-                        Total Keuntungan: <br>
+                        Total Pemasukan: <br>
                         <span id="totalProfit">Rp. {{ number_format($totalProfit, 0, ',', '.') }}</span>
                     </div>
                 </div>
