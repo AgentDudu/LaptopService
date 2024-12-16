@@ -82,7 +82,7 @@ use Illuminate\Support\Facades\Auth;
                             <th>No</th>
                             <th>ID Servis</th>
                             <th>Teknisi</th>
-                            <th>Nama Pelanggan</th>
+                            <th>Nama User</th>
                             <th>Laptop</th>
                             <th>Tanggal Masuk</th>
                             <th>Jasa Servis</th>
@@ -130,6 +130,11 @@ use Illuminate\Support\Facades\Auth;
                                     onclick="setDeleteAction('{{ route('transaksiServis.destroy', $servis->id_service) }}')">
                                     Delete
                                 </button>
+
+                                <!-- Cetak Nota Sementara -->
+                                <button class="btn btn-info temp-invoice-btn" data-id="{{ $servis->id_service }}">
+                                    Nota Sementara
+                                </button>
                             </td>
                         </tr>
                         @endforeach
@@ -144,11 +149,11 @@ use Illuminate\Support\Facades\Auth;
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete this transaction service? This action cannot be undone.
+                    Apakah Anda yakin ingin menghapus transaksi servis ini? Tindakan ini tidak dapat ditarik ulang.
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -162,10 +167,61 @@ use Illuminate\Support\Facades\Auth;
         </div>
     </div>
 
+    <!-- Modal for Sending Temp Invoice to Whatsapp Feedback -->
+    <div class="modal fade" id="tempInvoiceModal" tabindex="-1" aria-labelledby="tempInvoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tempInvoiceModalLabel">Status Pengiriman Nota Sementara</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="tempInvoiceMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
     function setDeleteAction(actionUrl) {
         document.getElementById('deleteForm').action = actionUrl;
     }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const tempInvoiceButtons = document.querySelectorAll('.temp-invoice-btn');
+
+        tempInvoiceButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const serviceId = button.getAttribute('data-id');
+
+                window.open(`/transaksiServis/tempInvoice/${serviceId}`, '_blank');
+
+                axios.post('/transaksiServis/sendTempInvoiceToWhatsapp', { id_service: serviceId })
+                    .then(response => {
+                        const modalMessage = document.getElementById('tempInvoiceMessage');
+                        const modal = new bootstrap.Modal(document.getElementById('tempInvoiceModal'));
+
+                        modalMessage.textContent = response.data.message;
+                        modal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error sending WhatsApp message:', error);
+
+                        const modalMessage = document.getElementById('tempInvoiceMessage');
+                        const modal = new bootstrap.Modal(document.getElementById('tempInvoiceModal'));
+
+                        modalMessage.textContent = 'Terjadi kesalahan saat mengirim nota sementara ke WhatsApp.';
+                        modal.show();
+                    });
+            });
+        });
+    });
     </script>
 
 </body>

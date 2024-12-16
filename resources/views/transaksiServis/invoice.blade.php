@@ -114,7 +114,7 @@
                 <td>: {{ date('d-m-Y') }}</td>
             </tr>
             <tr>
-                <td>Nama Pelanggan</td>
+                <td>Nama User</td>
                 <td>: {{ $transaksiServis->pelanggan->nama_pelanggan }}</td>
             </tr>
             <tr>

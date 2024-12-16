@@ -47,10 +47,10 @@
         }
     </style>
 
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+    <a href="{{ route('dashboard') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
         <x-images.logo-circle alt="Laptop Cafe Jogjakarta" class="img-fluid rounded-circle" width="75"
             style="margin-left: 8px" />
-        <h5 style="text-align: center; margin-left: -10px; margin-top: 15px;">Laptop Cafe Jogjakarta</h5>
+        <h5 style="text-align: center; margin-left: -10px; margin-top: 15px;">Laptop Cafe Jogja</h5>
     </a>
     <br>
 

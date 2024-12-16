@@ -143,7 +143,7 @@ use Illuminate\Support\Facades\Auth;
                     <div class="row mb-3">
                         <!-- Pelanggan Section -->
                         <div class="col-md-5">
-                            <h5>Pelanggan</h5>
+                            <h5>User</h5>
                             <div class="mb-2 d-flex align-items-center">
                                 <label for="nama_pelanggan" class="form-label" style="width: 80px;">Nama</label>
                                 <input list="pelanggan-options" name="nama_pelanggan" id="pelanggan-input"
