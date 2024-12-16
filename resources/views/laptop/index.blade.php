@@ -36,7 +36,7 @@
             max-width: 100%;
             background-color: #F8F9FA;
             max-height: 500px;
-            overflow-y: scroll; 
+            overflow-y: scroll;
         }
 
         table {
@@ -48,6 +48,11 @@
             justify-content: center;
             align-items: center;
             height: 100%;
+        }
+
+        #disclaimer {
+            color: red;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -70,8 +75,12 @@
 
             <!--💦 READ 💦-->
             <!-- Tambah button -->
-            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
-                data-bs-target="#tambahLaptopModal">Tambah</button>
+            @if (Auth::user()->status === 'Pemilik')
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
+                    data-bs-target="#tambahLaptopModal">Tambah</button>
+            @else
+                <p id="disclaimer">*Hanya Pemilik LaptopCafe yang dapat Edit-Tambah-Hapus</p>
+            @endif
 
             <!-- Tabel -->
             <div id="content-frame" class="container">
@@ -81,9 +90,11 @@
                             <th>No</th>
                             <th>ID Laptop</th>
                             <th>Merek Laptop</th>
-                            <th>Nama Pemilik</th>
+                            <th>Nama User</th>
                             <th>Deskripsi Masalah</th>
-                            <th>Aksi</th>
+                            @if (Auth::user()->status === 'Pemilik')
+                                <th>Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -94,15 +105,16 @@
                                 <td>{{ $lap->merek_laptop }}</td>
                                 <td>{{ $lap->pelanggan->nama_pelanggan }}</td>
                                 <td>{{ $lap->deskripsi_masalah }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                        data-bs-target="#editLaptopModal{{ $lap->id_laptop }}">Edit</button>
-                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                                        data-bs-target="#hapusLaptopModal{{ $lap->id_laptop }}">Hapus</button>
-                                </td>
+                                @if (Auth::user()->status === 'Pemilik')
+                                    <td>
+                                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                            data-bs-target="#editLaptopModal{{ $lap->id_laptop }}">Edit</button>
+                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                            data-bs-target="#hapusLaptopModal{{ $lap->id_laptop }}">Hapus</button>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
-
                     </tbody>
                 </table>
             </div>
@@ -110,76 +122,38 @@
     </div>
 
     <!-- Modal -->
-    <!--💦 Create Form 💦-->
-    <div class="modal fade" id="tambahLaptopModal" tabindex="-1" aria-labelledby="tambahLaptopModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="tambahLaptopModalLabel">Tambah Data Laptop</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Form for adding laptop -->
-                    <form action="{{ route('laptop.store') }}" method="POST">
-                        @csrf
-                        <div class="mb-2">
-                            <label for="nama_pemilik" class="form-label">Nama Pemilik</label>
-                            <select class="form-select" id="nama_pemilik" name="id_pelanggan">
-                                @foreach ($pelanggan as $owner)
-                                    <option selected value="{{ $owner->id_pelanggan }}">{{ $owner->nama_pelanggan }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label for="merekLaptop" class="form-label">Merek Laptop</label>
-                            <input type="text" class="form-control" id="merekLaptop" name="merek_laptop">
-                        </div>
-                        <div class="mb-2">
-                            <label for="deskripsi_masalah" class="form-label">Deskripsi Masalah</label>
-                            <input type="text" class="form-control" id="deskripsi_masalah" name="deskripsi_masalah">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!--💦 Edit Form 💦-->
-    @foreach ($laptop as $lap)
-        <div class="modal fade" id="editLaptopModal{{ $lap->id_laptop }}" tabindex="-1"
-            aria-labelledby="editLaptopModalLabel{{ $lap->id_laptop }}" aria-hidden="true">
+    <!-- Pemilik hanya yang boleh EDIT - TAMBAH - HAPUS -->
+    @if (Auth::user()->status === 'Pemilik')
+        <!--💦 Create Form 💦-->
+        <div class="modal fade" id="tambahLaptopModal" tabindex="-1" aria-labelledby="tambahLaptopModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editLaptopModalLabel">Edit Data Laptop</h5>
+                        <h5 class="modal-title" id="tambahLaptopModalLabel">Tambah Data Laptop</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ route('laptop.update', $lap->id_laptop) }}" method="POST">
+                        <!-- Form for adding laptop -->
+                        <form action="{{ route('laptop.store') }}" method="POST">
                             @csrf
-                            @method('PUT')
                             <div class="mb-2">
-                                <label for="nama_pelanggan" class="form-label">Nama Pemilik</label>
-                                <select class="form-select" id="nama_pelanggan" name="nama_pelanggan">
+                                <label for="nama_pemilik" class="form-label">Nama User</label>
+                                <select class="form-select" id="nama_pemilik" name="id_pelanggan">
                                     @foreach ($pelanggan as $owner)
-                                        <option selected value="{{ $owner->id_pelanggan }}"
-                                            {{ $lap->pelanggan->id_pelanggan == $owner->id_pelanggan ? 'selected' : '' }}>
-                                            {{ $owner->nama_pelanggan }}</option>
+                                        <option selected value="{{ $owner->id_pelanggan }}">{{ $owner->nama_pelanggan }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label for="merek_laptop" class="form-label">Merek Laptop</label>
-                                <input type="text" class="form-control" id="merek_laptop" name="merek_laptop"
-                                    value="{{ $lap->merek_laptop }}">
+                                <label for="merekLaptop" class="form-label">Merek Laptop</label>
+                                <input type="text" class="form-control" id="merekLaptop" name="merek_laptop">
                             </div>
                             <div class="mb-2">
                                 <label for="deskripsi_masalah" class="form-label">Deskripsi Masalah</label>
                                 <input type="text" class="form-control" id="deskripsi_masalah"
-                                    name="deskripsi_masalah" value="{{ $lap->deskripsi_masalah }}">
+                                    name="deskripsi_masalah">
                             </div>
                             <button type="submit" class="btn btn-primary">Simpan</button>
                         </form>
@@ -187,35 +161,79 @@
                 </div>
             </div>
         </div>
-    @endforeach
 
-    <!--💦 Delete Form 💦-->
-    @foreach ($laptop as $lap)
-        <div class="modal fade" id="hapusLaptopModal{{ $lap->id_laptop }}" tabindex="-1"
-            aria-labelledby="hapusLaptopModalLabel{{ $lap->id_laptop }}" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="hapusLaptopModalLabel">Hapus Data Laptop</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Apakah Anda yakin ingin menghapus data laptop <strong>{{ $lap->merek_laptop }}</strong>
-                            milik <strong>{{ $lap->pelanggan->nama_pelanggan }}</strong>?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <form action="{{ route('laptop.destroy', $lap->id_laptop) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-danger">Hapus</button>
-                        </form>
+        <!--💦 Edit Form 💦-->
+        @foreach ($laptop as $lap)
+            <div class="modal fade" id="editLaptopModal{{ $lap->id_laptop }}" tabindex="-1"
+                aria-labelledby="editLaptopModalLabel{{ $lap->id_laptop }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editLaptopModalLabel">Edit Data Laptop</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('laptop.update', $lap->id_laptop) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="mb-2">
+                                    <label for="nama_pelanggan" class="form-label">Nama User</label>
+                                    <select class="form-select" id="nama_pelanggan" name="nama_pelanggan">
+                                        @foreach ($pelanggan as $owner)
+                                            <option selected value="{{ $owner->id_pelanggan }}"
+                                                {{ $lap->pelanggan->id_pelanggan == $owner->id_pelanggan ? 'selected' : '' }}>
+                                                {{ $owner->nama_pelanggan }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="merek_laptop" class="form-label">Merek Laptop</label>
+                                    <input type="text" class="form-control" id="merek_laptop" name="merek_laptop"
+                                        value="{{ $lap->merek_laptop }}">
+                                </div>
+                                <div class="mb-2">
+                                    <label for="deskripsi_masalah" class="form-label">Deskripsi Masalah</label>
+                                    <input type="text" class="form-control" id="deskripsi_masalah"
+                                        name="deskripsi_masalah" value="{{ $lap->deskripsi_masalah }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Simpan</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    @endforeach
+        @endforeach
+
+        <!--💦 Delete Form 💦-->
+        @foreach ($laptop as $lap)
+            <div class="modal fade" id="hapusLaptopModal{{ $lap->id_laptop }}" tabindex="-1"
+                aria-labelledby="hapusLaptopModalLabel{{ $lap->id_laptop }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="hapusLaptopModalLabel">Hapus Data Laptop</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Apakah Anda yakin ingin menghapus data laptop <strong>{{ $lap->merek_laptop }}</strong>
+                                milik <strong>{{ $lap->pelanggan->nama_pelanggan }}</strong>?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form action="{{ route('laptop.destroy', $lap->id_laptop) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-danger">Hapus</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endif
 
     <!-- Include Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>

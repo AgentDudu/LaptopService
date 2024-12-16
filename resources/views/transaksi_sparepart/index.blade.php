@@ -78,7 +78,7 @@
                         <tr>
                             <th>No. Faktur</th>
                             <th>Teknisi</th>
-                            <th>Nama Pelanggan</th>
+                            <th>Nama User</th>
                             <th>Tanggal</th>
                             <th>Jumlah</th>
                             <th>Harga Total</th>

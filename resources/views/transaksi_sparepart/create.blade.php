@@ -17,6 +17,7 @@
             display: flex;
             background-color: #067D40;
         }
+
         .container {
             max-width: 100%;
             margin-left: 0px;
@@ -33,7 +34,7 @@
             margin: 20px 20px 20px 0;
             background-color: #F8F9FA;
             border-radius: 20px;
-            max-height: 85%;
+            max-height: 94.5vh;
         }
 
         .form-control,
@@ -48,7 +49,7 @@
 
         .pelanggan-label,
         .sparepart-label {
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             font-weight: 500;
             color: black;
         }
@@ -70,14 +71,15 @@
 
         .content-frame {
             width: 100%;
-            height: 40vh;
-            max-height: 40vh;
+            height: 35vh;
+            max-height: 35vh;
             overflow-y: scroll;
         }
 
         .allbtn {
             margin-top: 5px;
-            position: relative;
+            /* position: relative; */
+            /* height: 90vh; */
         }
     </style>
 </head>
@@ -101,7 +103,7 @@
                     <table class="no-border">
                         <tr>
                             <td>No. Faktur</td>
-                            <td>:</td>
+                            <td width="1%"></td>
                             <td>
                                 <input type="text" name="id_transaksi_sparepart" value="{{ $newId }}" readonly
                                     class="form-control" placeholder="TSP001">
@@ -109,22 +111,23 @@
                             <td width="20px"></td>
 
                             <td>Tanggal</td>
-                            <td>:</td>
+                            <td width="1%"></td>
                             <td width="200px"><input type="date" name="tanggal_jual" class="form-control" required>
                             </td>
-                            <td width="42%"></td>
+                            <td width="20%"></td>
 
                             <td>Total Transaksi</td>
-                            <td>
+                            <td width="1%"></td>
+                            <td width="20%">
                                 <input type="text" name="harga_total_transaksi_sparepart"
                                     id="harga_total_transaksi_sparepart"
                                     class="form-control total-harga_sparepart-input" placeholder="Rp 0,-" required
-                                    readonly>
+                                    readonly style="border: 1px solid #ccc; padding: 15px; background-color: white;">
                             </td>
                         </tr>
                         <tr>
                             <td>Teknisi</td>
-                            <td>:</td>
+                            <td></td>
                             <td>
                                 <input type="text" id="nama_teknisi" name="nama_teknisi" class="form-control"
                                     value="{{ Auth::user()->nama_teknisi }}" readonly>
@@ -134,33 +137,32 @@
 
                     <div class="long-line"></div>
 
-                    <h5 class="pelanggan-label">Pelanggan</h5>
+                    <h6 class="pelanggan-label">User</h6>
                     <table class="no-border">
                         <tr>
                         <tr>
-                            <td>Pelanggan</td>
-                            <td>:</td>
-                            <td width="200px">
-                                <select id="id_pelanggan" name="id_pelanggan" class="form-control" required>
-                                    <option value="">Pilih Pelanggan</option>
+                            <td>User</td>
+                            <td width="9%"></td>
+                            <td width="210px">
+                                <input list="pelanggan-options" name="pelanggan_input" id="pelanggan-input"
+                                    class="form-control" placeholder="Pilih/Ketik Nama User">
+                                <datalist id="pelanggan-options">
                                     @foreach ($pelanggan as $pelangganItem)
-                                        <option value="{{ $pelangganItem->id_pelanggan }}">
-                                            {{ $pelangganItem->nama_pelanggan }}
-                                        </option>
+                                        <option value="{{ $pelangganItem->nama_pelanggan }}"></option>
                                     @endforeach
-                                </select>
+                                </datalist>
                             </td>
                             <td width="20px"></td>
                             <td>No HP</td>
-                            <td>:</td>
-                            <td><input type="text" id="nohp_pelanggan" name="nohp_pelanggan" class="form-control"
-                                    readonly></td>
+                            <td width="2%"></td>
+                            <td><input type="text" id="nohp_pelanggan" name="nohp_pelanggan" class="form-control">
+                            </td>
                         </tr>
                     </table>
 
                     <div class="long-line"></div>
 
-                    <h5 class="sparepart-label">Sparepart</h5>
+                    <h6 class="sparepart-label">Sparepart</h6>
                     <div class="content-frame">
                         <table class="table table-bordered" id="sparepartsTable">
                             <thead>
@@ -223,8 +225,9 @@
                                 <label for="kembalian" class="form-label">Kembalian</label>
                                 <p class="form-control-static" id="kembalian">Rp. 0</p>
                             </div>
-                            <button form="form-tambah" type="submit" class="btn btn-primary"
-                                id="bayarButton" onclick="window.location='{{ route('transaksi_sparepart.index') }}'">Bayar & Cetak</button>
+                            <button form="form-tambah" type="submit" class="btn btn-primary" id="bayarButton"
+                                onclick="window.location='{{ route('transaksi_sparepart.index') }}'">Bayar &
+                                Cetak</button>
                         </div>
                     </div>
                 </div>
@@ -238,6 +241,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        document.getElementById('harga_sparepart').addEventListener('input', function() {
+            let input = this.value;
+            input = input.replace(/\D/g, '');
+            let formatted = new Intl.NumberFormat('id-ID').format(input);
+            this.value = formatted;
+        });
+
         $(document).ready(function() {
             $('#id_pelanggan').on('input', function() {
                 var nama_pelanggan = $(this).val();
@@ -257,27 +267,6 @@
                 });
             });
         });
-
-        document.getElementById('id_pelanggan').addEventListener('change', async function() {
-            const idPelanggan = this.value; // Mengambil nilai dari select (id pelanggan)
-            const nohpField = document.getElementById('nohp_pelanggan');
-
-            if (!idPelanggan) {
-                nohpField.value = "";
-                return;
-            }
-
-            try {
-                const response = await fetch(`/pelanggan/get/${idPelanggan}`);
-                const data = await response.json();
-                nohpField.value = data.nohp_pelanggan || "";
-            } catch (error) {
-                console.error('Error fetching nohp pelanggan:', error);
-                nohpField.value = "";
-            }
-        });
-
-
 
         $(document).ready(function() {
             var sparepartIndex = 0;
@@ -432,6 +421,18 @@
                 bayarButton.onclick = function() {
                     window.print(); // Fungsi cetak ketika tombol diklik
                 };
+            }
+        });
+
+        document.getElementById('pelanggan-input').addEventListener('input', function() {
+            const pelangganInput = this.value;
+            const pelangganData = @json($pelanggan);
+            const matchedPelanggan = pelangganData.find(item => item.nama_pelanggan === pelangganInput);
+            const nohpField = document.getElementById('nohp_pelanggan');
+            if (matchedPelanggan) {
+                nohpField.value = matchedPelanggan.nohp_pelanggan;
+            } else {
+                nohpField.value = '';
             }
         });
     </script>

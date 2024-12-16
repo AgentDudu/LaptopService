@@ -36,7 +36,7 @@
             max-width: 100%;
             background-color: #F8F9FA;
             max-height: 500px;
-            overflow-y: scroll; 
+            overflow-y: scroll;
         }
 
         .center-container {
@@ -49,11 +49,14 @@
         #disclaimer {
             color: red;
             font-size: 13px;
-            margin-left: 10px;
         }
 
         .tambahButton {
             display: flex;
+        }
+
+        .tambahButton button {
+            margin-right: 10px;
         }
 
         td a {
@@ -91,9 +94,12 @@
             <!--💦 READ 💦-->
             <!-- Tambah button -->
             <div class="tambahButton">
-                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
-                    data-bs-target="#tambahJasaModal">Tambah</button>
-                <p id="disclaimer">*Hanya Pemilik LaptopCafe yang dapat Edit-Tambah-Hapus</p>
+                @if (Auth::user()->status === 'Pemilik')
+                    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
+                        data-bs-target="#tambahJasaModal">Tambah</button>
+                @else
+                    <p id="disclaimer">*Hanya Pemilik LaptopCafe yang dapat Edit-Tambah-Hapus</p>
+                @endif
             </div>
 
             <!-- Tabel Daftar Harga -->
@@ -104,13 +110,15 @@
                             <td>
                                 <label id="namaJasa">{{ $jasa->jenis_jasa }}</label><br>
                                 <label>Base Price:</label>
-                                <input type="text" value="{{ $jasa->harga_jasa }}" disabled>
-                                <a data-bs-toggle="modal" data-bs-target="#editJasaModal{{ $jasa->id_jasa }}">
-                                    @include('components.icons.svg-edit')
-                                </a>
-                                <a data-bs-toggle="modal" data-bs-target="#hapusJasaModal{{ $jasa->id_jasa }}">
-                                    @include('components.icons.svg-delete')
-                                </a>
+                                <input type="text" value="{{ number_format($jasa->harga_jasa, 0, ',', '.') }}" disabled>
+                                @if (Auth::user()->status === 'Pemilik')
+                                    <a data-bs-toggle="modal" data-bs-target="#editJasaModal{{ $jasa->id_jasa }}">
+                                        @include('components.icons.svg-edit')
+                                    </a>
+                                    <a data-bs-toggle="modal" data-bs-target="#hapusJasaModal{{ $jasa->id_jasa }}">
+                                        @include('components.icons.svg-delete')
+                                    </a>
+                                @endif
                             </td>
                             @if ($loop->iteration % 3 == 0)
                     </tr>

@@ -91,13 +91,13 @@
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                     <li><a href="{{ route('pelanggan.index') }}" class="nav-link text-white ps-4 {{ Route::is('customers.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                         @include('components.icons.svg-pelanggan')
-                        Pelanggan</a></li>
+                        User</a></li>
                     <li><a href="{{ route('laptop.index') }}" class="nav-link text-white ps-4 {{ Route::is('laptops.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                         @include('components.icons.svg-laptop')
                         Laptop</a></li>
                     <li><a href="{{ route('jasaServis.index') }}" class="nav-link text-white ps-4 {{ Route::is('jasaServis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                         @include('components.icons.svg-jasaServis')
-                        Jasa Servis</a></li>
+                        Price List</a></li>
                 </ul>
             </div>
         </li>

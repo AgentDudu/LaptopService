@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\Auth;
     #content-frame {
         max-width: 100%;
         background-color: #F8F9FA;
-        max-height: 80vh;
+        max-height: 78vh;
         overflow-y: scroll;
     }
 
@@ -124,7 +124,6 @@ use Illuminate\Support\Facades\Auth;
                                 style="border: 1px solid #ccc; padding: 10px; text-align: center; width: 100%; margin-top: -50px; margin-left:50px;">
                                 <label>Total Transaksi:</label>
                                 <h3><strong class="total-transaksi-amount">Rp. 0</strong></h3>
-                                <!-- This value will be dynamically calculated -->
                             </div>
                         </div>
                     </div>
