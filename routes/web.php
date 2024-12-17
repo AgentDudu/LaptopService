@@ -64,3 +64,4 @@ Route::get('/pelanggan/get/{id_pelanggan}', [PelangganController::class, 'getNoH
 Route::get('/transaksi_sparepart/{id_transaksi_sparepart}/nota', [TransaksiSparepartController::class, 'nota'])->name('transaksi_sparepart.nota');
 
 Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');

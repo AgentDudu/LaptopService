@@ -151,6 +151,7 @@
                         <input type="number" id="endDay" min="1" max="31" placeholder="End Day" style="width: 80px;">
                         <button class="btn btn-primary" onclick="applyFilters()" style="width: 70px;">Cari</button>
                         <button class="btn btn-secondary" onclick="resetFilters()" style="width: 70px;">Reset</button>
+                        <button class="btn btn-success" onclick="cetakLaporan()">Cetak Laporan</button>
                     </div>
                 </div>
 
@@ -280,7 +281,12 @@
 
     function resetFilters() {
     window.location.href = window.location.pathname;
-}
+    }
+
+    function cetakLaporan() {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = `/laporan/cetak?${params.toString()}`;
+    }
 </script>
 </body>
 </html>
