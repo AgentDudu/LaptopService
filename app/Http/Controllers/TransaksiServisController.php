@@ -16,6 +16,7 @@ use App\Models\Pelanggan\Pelanggan;
 use App\Models\Auth\Teknisi;
 use App\Models\Laptop\Laptop;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class TransaksiServisController extends Controller
 {
@@ -105,6 +106,10 @@ class TransaksiServisController extends Controller
 
             foreach ($request->input('jasa_servis', []) as $jasaId) {
                 $jasaServis = JasaServis::find($jasaId);
+                $tglMulai = $request->input("tgl_mulai_{$jasaServis->jenis_jasa}", Carbon::today()->format('Y-m-d'));
+                $jangkaGaransi = $request->input("jangka_garansi_{$jasaServis->jenis_jasa}", 1);
+
+                $akhirGaransi = Carbon::parse($tglMulai)->addMonths($jangkaGaransi)->subDay()->format('Y-m-d');
 
                 if ($jasaServis) {
                     $sparepartTipe = $request->input("sparepart_tipe_1");
@@ -136,7 +141,7 @@ class TransaksiServisController extends Controller
                         'id_sparepart' => $sparepartId, // Save sparepart ID if available
                         'harga_transaksi_jasa_servis' => $request->input('custom_price')[$jasaId],
                         'jangka_garansi_bulan' => $request->input("jangka_garansi_{$jasaServis->jenis_jasa}", 1),
-                        'akhir_garansi' => $request->input("tgl_mulai_{$jasaServis->jenis_jasa}"),
+                        'akhir_garansi' => $akhirGaransi,
                         'subtotal_servis' => $request->input('custom_price')[$jasaId],
                         'subtotal_sparepart' => $sparepartSubtotal ? $sparepartSubtotal : 0,
                         'jumlah_sparepart_terpakai' => $sparepartJumlah ? $sparepartJumlah : null,
@@ -219,6 +224,82 @@ class TransaksiServisController extends Controller
         }
     }
 
+    public function tempInvoice($id)
+    {
+        $transaksiServis = TransaksiServis::with(['pelanggan', 'laptop', 'teknisi'])->findOrFail($id);
+
+        $data = [
+            'id_service' => $transaksiServis->id_service,
+            'tanggal_masuk' => $transaksiServis->tanggal_masuk,
+            'tanggal_keluar' => $transaksiServis->tanggal_keluar,
+            'nama_pelanggan' => $transaksiServis->pelanggan->nama_pelanggan,
+            'nohp_pelanggan' => $transaksiServis->pelanggan->nohp_pelanggan,
+            'merek_laptop' => $transaksiServis->laptop->merek_laptop,
+            'keluhan' => $transaksiServis->laptop->deskripsi_masalah,
+            'nama_teknisi' => $transaksiServis->teknisi->nama_teknisi ?? 'N/A',
+        ];
+
+        $pdf = Pdf::loadView('transaksiServis.tempInvoice', $data);
+
+        return $pdf->download('Nota_Sementara_' . $transaksiServis->id_service . '.pdf');
+    }
+
+    public function sendTempInvoiceToWhatsapp(Request $request)
+    {
+        $request->validate([
+            'id_service' => 'required|exists:service,id_service',
+        ]);
+
+        $transaksiServis = TransaksiServis::with('pelanggan')->findOrFail($request->id_service);
+        $whatsappNumber = $transaksiServis->pelanggan->nohp_pelanggan;
+
+        if (substr($whatsappNumber, 0, 1) === '0') {
+            $whatsappNumber = '62' . substr($whatsappNumber, 1);
+        }
+
+        $data = [
+            'id_service' => $transaksiServis->id_service,
+            'tanggal_masuk' => $transaksiServis->tanggal_masuk,
+            'tanggal_keluar' => $transaksiServis->tanggal_keluar,
+            'nama_pelanggan' => $transaksiServis->pelanggan->nama_pelanggan,
+            'nohp_pelanggan' => $transaksiServis->pelanggan->nohp_pelanggan,
+            'merek_laptop' => $transaksiServis->laptop->merek_laptop,
+            'keluhan' => $transaksiServis->laptop->deskripsi_masalah,
+            'nama_teknisi' => $transaksiServis->teknisi->nama_teknisi ?? 'N/A',
+        ];
+
+        $pdf = Pdf::loadView('transaksiServis.tempInvoice', $data);
+
+        $pdfContent = base64_encode($pdf->output());
+
+        $messageText = "Halo {$transaksiServis->pelanggan->nama_pelanggan}, berikut adalah nota sementara Anda.";
+
+        $fonnteToken = config('services.fonnte.token');
+
+        $response = Http::withHeaders([
+            'Authorization' => "Bearer {$fonnteToken}"
+        ])->withOptions(['verify' => false])->post('https://api.fonnte.com/send', [
+            'target' => $whatsappNumber,
+            'message' => $messageText,
+            'file' => $pdfContent,
+            'filename' => 'Nota_Sementara_' . $transaksiServis->id_service . '.pdf',
+            'countryCode' => '62'
+        ]);
+
+        if ($response->successful()) {
+            return response()->json(['success' => true, 'message' => 'Nota sementara berhasil dikirim ke WhatsApp.']);
+        } else {
+            Log::error('Failed to send temporary invoice:', [
+                'status' => $response->status(),
+                'response' => $response->body(),
+                'number' => $whatsappNumber,
+                'message' => $messageText
+            ]);
+
+            return response()->json(['success' => false, 'message' => 'Gagal mengirim nota sementara ke WhatsApp.']);
+        }
+    }
+
     public function cetakNota($id)
     {
         $transaksiServis = TransaksiServis::with(['detailTransaksiServis.jasaServis', 'detailTransaksiServis.sparepart', 'pelanggan', 'laptop'])->findOrFail($id);
@@ -235,9 +316,9 @@ class TransaksiServisController extends Controller
             'kembalian' => $kembalian,
         ];
 
-        $pdf = \PDF::loadView('transaksiServis.invoice', $data);
+        $pdf = Pdf::loadView('transaksiServis.invoice', $data);
 
-        return $pdf->download('invoice_' . $transaksiServis->id_service . '.pdf');
+        return $pdf->download('Nota_Servis_' . $transaksiServis->id_service . '.pdf');
     }
 
     public function sendInvoiceToWhatsapp(Request $request)
@@ -248,7 +329,7 @@ class TransaksiServisController extends Controller
             'kembalian' => 'required|numeric'
         ]);
 
-        $transaksiServis = TransaksiServis::with('pelanggan')->find($request->id_service);
+        $transaksiServis = TransaksiServis::with('pelanggan')->findOrFail($request->id_service);
         $whatsappNumber = $transaksiServis->pelanggan->nohp_pelanggan;
 
         if (substr($whatsappNumber, 0, 1) === '0') {
@@ -265,38 +346,30 @@ class TransaksiServisController extends Controller
             'kembalian' => $request->kembalian
         ]);
 
-        Storage::disk('public')->makeDirectory('invoices');
-
-        $pdfPath = 'invoices/Nota_Servis_' . $transaksiServis->id_service . '.pdf';
-        Storage::disk('public')->put($pdfPath, $pdf->output());
-
-        $pdfUrl = Storage::disk('public')->url($pdfPath);
-
-        $verifySSL = app()->environment('production');
+        $pdfContent = base64_encode($pdf->output());
 
         $fonnteToken = config('services.fonnte.token');
 
-        $fonnteResponse = Http::withOptions([
-            'verify' => $verifySSL
-        ])->withHeaders([
+        $response = Http::withHeaders([
             'Authorization' => "Bearer {$fonnteToken}"
+        ])->withOptions([
+            'verify' => false
         ])->post('https://api.fonnte.com/send', [
             'target' => $whatsappNumber,
             'message' => $messageText,
-            'url' => $pdfUrl,
+            'file' => $pdfContent,
             'filename' => 'Nota_Servis_' . $transaksiServis->id_service . '.pdf',
             'countryCode' => '62'
         ]);
 
-        if ($fonnteResponse->successful()) {
+        if ($response->successful()) {
             return response()->json(['success' => true, 'message' => 'Nota berhasil dikirim ke WhatsApp pelanggan.']);
         } else {
             Log::error('Failed to send WhatsApp message:', [
-                'status' => $fonnteResponse->status(),
-                'response' => $fonnteResponse->body(),
+                'status' => $response->status(),
+                'response' => $response->body(),
                 'number' => $whatsappNumber,
-                'message' => $messageText,
-                'pdfUrl' => $pdfUrl
+                'message' => $messageText
             ]);
             return response()->json(['success' => false, 'message' => 'Gagal mengirim nota via WhatsApp.']);
         }

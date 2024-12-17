@@ -119,7 +119,7 @@
                 <div class="filter-fields">
                     <div class="filter-row">
                         <label for="tipeTransaksi">Tipe Transaksi:</label>
-                        <select id="tipeTransaksi" style="width: 175px;">
+                        <select id="tipeTransaksi" style="width: 175px; margin-left: 21px;">
                             <option value="All">All</option>
                             <option value="Servis">Servis</option>
                             <option value="Penjualan Sparepart">Penjualan Sparepart</option>
@@ -127,21 +127,31 @@
                     </div>
                     <div class="filter-row">
                         <label for="periode">Periode:</label>
-                        <select id="bulan" style="margin-left: 47px;">
+                        <select id="bulan" style="margin-left: 69px;">
+                            <option value="All" selected>All</option>
                             @for ($i = 1; $i <= 12; $i++)
-                                <option value="{{ $i }}" {{ $i == date('m') ? 'selected' : '' }}>
+                                <option value="{{ $i }}" {{ $i == request('month') ? 'selected' : '' }}>
                                     {{ date('F', mktime(0, 0, 0, $i, 1)) }}
                                 </option>
                             @endfor
                         </select>
                         <select id="tahun">
+                            <option value="All" selected>All</option>
                             @for ($i = 2020; $i <= date('Y'); $i++)
-                                <option value="{{ $i }}" {{ $i == date('Y') ? 'selected' : '' }}>
+                                <option value="{{ $i }}" {{ $i == request('year') ? 'selected' : '' }}>
                                     {{ $i }}
                                 </option>
                             @endfor
                         </select>
-                        <button class="btn btn-primary" onclick="applyFilters()" style="width: 50px;">Cari</button>
+                    </div>
+                    <div class="filter-row">
+                    <label for="dayRange">Rentang Tanggal:</label>
+                        <input type="number" id="startDay" min="1" max="31" placeholder="Start Day" style="width: 80px;">
+                        <span>-</span>
+                        <input type="number" id="endDay" min="1" max="31" placeholder="End Day" style="width: 80px;">
+                        <button class="btn btn-primary" onclick="applyFilters()" style="width: 70px;">Cari</button>
+                        <button class="btn btn-secondary" onclick="resetFilters()" style="width: 70px;">Reset</button>
+                        <button class="btn btn-success" onclick="cetakLaporan()">Cetak Laporan</button>
                     </div>
                 </div>
 
@@ -190,35 +200,93 @@
         </main>
     </div>
     <script>
-        function applyFilters() {
-            const type = document.getElementById('tipeTransaksi').value;
-            const month = document.getElementById('bulan').value;
-            const year = document.getElementById('tahun').value;
-            if (!type) {
-                alert('Pilih tipe transaksi!');
-                return;
+    function updateDayRange() {
+        const month = document.getElementById('bulan').value;
+        const year = document.getElementById('tahun').value;
+        const startDayInput = document.getElementById('startDay');
+        const endDayInput = document.getElementById('endDay');
+
+        if (month === 'All' || year === 'All') {
+            startDayInput.disabled = true;
+            endDayInput.disabled = true;
+            return;
+        } else {
+            startDayInput.disabled = false;
+            endDayInput.disabled = false;
+        }
+
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        startDayInput.max = daysInMonth;
+        endDayInput.max = daysInMonth;
+
+        if (startDayInput.value > daysInMonth) startDayInput.value = '';
+        if (endDayInput.value > daysInMonth) endDayInput.value = '';
+
+        enforceEndDayLimit();
+    }
+
+    function enforceEndDayLimit() {
+        const endDayInput = document.getElementById('endDay');
+        const maxDay = parseInt(endDayInput.max);
+
+        endDayInput.addEventListener('input', function () {
+            const value = parseInt(this.value) || 0;
+
+            if (value > maxDay) {
+                this.value = maxDay;
             }
-            const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('type', type);
-            urlParams.set('month', month);
-            urlParams.set('year', year);
-            window.location.search = urlParams.toString();
+        });
+    }
+
+    function applyFilters() {
+        const type = document.getElementById('tipeTransaksi').value;
+        const month = document.getElementById('bulan').value;
+        const year = document.getElementById('tahun').value;
+        const startDay = document.getElementById('startDay').value;
+        const endDay = document.getElementById('endDay').value;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('type', type);
+        urlParams.set('month', month);
+        urlParams.set('year', year);
+
+        if (startDay && endDay) {
+            urlParams.set('start_day', startDay);
+            urlParams.set('end_day', endDay);
+        } else {
+            urlParams.delete('start_day');
+            urlParams.delete('end_day');
         }
 
-        function setFilterValues() {
-            const urlParams = new URLSearchParams(window.location.search);
-            // Retrieve values from the URL parameters
-            const type = urlParams.get('type') || 'All';
-            const month = urlParams.get('month') || new Date().getMonth() + 1;
-            const year = urlParams.get('year') || new Date().getFullYear();
-            // Set the selected values
-            document.getElementById('tipeTransaksi').value = type;
-            document.getElementById('bulan').value = month;
-            document.getElementById('tahun').value = year;
-        }
-        // Call the function to set filter values on page load
-        document.addEventListener('DOMContentLoaded', setFilterValues);
-    </script>
+        window.location.search = urlParams.toString();
+    }
+
+    function setFilterValues() {
+        const urlParams = new URLSearchParams(window.location.search);
+        document.getElementById('tipeTransaksi').value = urlParams.get('type') || 'All';
+        document.getElementById('bulan').value = urlParams.get('month') || 'All';
+        document.getElementById('tahun').value = urlParams.get('year') || 'All';
+    }
+
+    document.getElementById('bulan').addEventListener('change', updateDayRange);
+    document.getElementById('tahun').addEventListener('change', updateDayRange);
+    document.getElementById('endDay').addEventListener('input', enforceEndDayLimit);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateDayRange();
+        setFilterValues();
+        enforceEndDayLimit();
+    });
+
+    function resetFilters() {
+    window.location.href = window.location.pathname;
+    }
+
+    function cetakLaporan() {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = `/laporan/cetak?${params.toString()}`;
+    }
+</script>
 </body>
-
 </html>

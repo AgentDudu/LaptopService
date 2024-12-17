@@ -44,6 +44,9 @@ Route::resource('jasaServis', JasaServisController::class);
 Route::resource('transaksiServis', TransaksiServisController::class);
 Route::post('/transaksiServis/bayar', [TransaksiServisController::class, 'bayar'])->name('transaksiServis.bayar');
 Route::get('/transaksiServis/{id}/cetakNota', [TransaksiServisController::class, 'cetakNota'])->name('transaksiServis.cetakNota');
+Route::get('/transaksiServis/temp-invoice/{id}', [TransaksiServisController::class, 'tempInvoice'])->name('transaksiServis.tempInvoice');
+Route::get('/transaksiServis/tempInvoice/{id}', [TransaksiServisController::class, 'tempInvoice'])->name('transaksiServis.tempInvoice');
+Route::post('/transaksiServis/sendTempInvoiceToWhatsapp', [TransaksiServisController::class, 'sendTempInvoiceToWhatsapp'])->name('transaksiServis.sendTempInvoiceToWhatsapp');
 
 // Transaksi Sparepart
 Route::resource('transaksi_sparepart', TransaksiSparepartController::class)->names([
@@ -61,3 +64,4 @@ Route::get('/pelanggan/get/{id_pelanggan}', [PelangganController::class, 'getNoH
 Route::get('/transaksi_sparepart/{id_transaksi_sparepart}/nota', [TransaksiSparepartController::class, 'nota'])->name('transaksi_sparepart.nota');
 
 Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');

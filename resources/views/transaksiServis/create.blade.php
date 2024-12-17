@@ -133,7 +133,7 @@ use Illuminate\Support\Facades\Auth;
                     <div class="row mb-3">
                         <!-- Pelanggan Section -->
                         <div class="col-md-5">
-                            <h5>Pelanggan</h5>
+                            <h5>User</h5>
                             <div class="mb-2 d-flex align-items-center">
                                 <label for="nama_pelanggan" class="form-label" style="width: 80px;">Nama</label>
                                 <input list="pelanggan-options" name="nama_pelanggan" id="pelanggan-input" class="form-control" placeholder="Pilih atau ketik nama pelanggan">
@@ -220,10 +220,10 @@ use Illuminate\Support\Facades\Auth;
 
                         <!-- Submit Buttons -->
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                            <button type="reset" class="btn btn-secondary">Reset</button>
+                            <button type="submit" class="btn btn-success">Simpan</button>
+                            <button type="reset" class="btn btn-danger">Reset</button>
+                            <a href="{{ route('transaksiServis.index') }}" class="btn btn-secondary">Kembali</a>
                         </div>
-
                 </form>
             </div>
         </main>
@@ -239,6 +239,23 @@ use Illuminate\Support\Facades\Auth;
     </div>
     @endif
 
+    <!-- Minimum Tanggal Masuk -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tanggalMasuk = document.getElementById('tanggal_masuk');
+
+            const today = new Date().toISOString().split('T')[0];
+
+            tanggalMasuk.setAttribute('min', today);
+
+            tanggalMasuk.addEventListener('input', function () {
+                if (tanggalMasuk.value < today) {
+                    alert("Tanggal masuk tidak boleh kurang dari hari ini.");
+                    tanggalMasuk.value = today; // Reset to today's date if invalid
+                }
+            });
+        });
+    </script>
 
     <!-- Minimum Tanggal Keluar -->
     <script>
