@@ -97,7 +97,7 @@
                         Laptop</a></li>
                     <li><a href="{{ route('jasaServis.index') }}" class="nav-link text-white ps-4 {{ Route::is('jasaServis.*') ? 'text-white bg-custom rounded active' : 'inactive' }}">
                         @include('components.icons.svg-jasaServis')
-                        Price List</a></li>
+                        Price List Jasa Servis</a></li>
                 </ul>
             </div>
         </li>
