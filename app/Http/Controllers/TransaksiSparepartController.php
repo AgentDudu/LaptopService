@@ -42,17 +42,40 @@ class TransaksiSparepartController extends Controller
     {
         try {
             DB::beginTransaction();
-            // 1. Simpan data ke tabel TransaksiJualSparepart
-            $jualSparepart = TransaksiJualSparepart::create([
-                'id_pelanggan' => $request->id_pelanggan,
-                'id_teknisi' => Auth::user()->id_teknisi,
-                'tanggal_jual' => $request->tanggal_jual,
-                'harga_total_transaksi_sparepart' => $request->harga_total_transaksi_sparepart,
+
+            // Step 1: Find or create Pelanggan
+            $pelanggan = null; // Default to null if no pelanggan input is provided
+
+            if (!empty($request->pelanggan_input)) {
+                // Check if pelanggan exists based on the input name
+                $pelanggan = Pelanggan::firstOrCreate(
+                    ['nama_pelanggan' => $request->pelanggan_input],
+                    ['nohp_pelanggan' => $request->nohp_pelanggan]
+                );
+            }
+
+            // Step 2: Validate input data
+            $validatedData = $request->validate([
+                'tanggal_jual' => 'required|date',
+                'harga_total_transaksi_sparepart' => 'required|numeric|min:1',
+                'spareparts' => 'required|array|min:1',
+                'spareparts.*.jenis_sparepart' => 'required|string',
+                'spareparts.*.merek_sparepart' => 'required|string',
+                'spareparts.*.model_sparepart' => 'required|string',
+                'spareparts.*.jumlah_sparepart_terjual' => 'required|integer|min:1',
+                'spareparts.*.harga_sparepart' => 'required|numeric|min:1',
             ]);
 
-            // 2. Simpan setiap sparepart baru dan detail transaksi
-            foreach ($request->spareparts as $sparepartData) {
-                // dd('berhasil');
+            // Step 3: Save the main transaction
+            $jualSparepart = TransaksiJualSparepart::create([
+                'id_pelanggan' => $pelanggan ? $pelanggan->id_pelanggan : null, // Set null if no pelanggan
+                'id_teknisi' => Auth::user()->id_teknisi,
+                'tanggal_jual' => $validatedData['tanggal_jual'],
+                'harga_total_transaksi_sparepart' => $validatedData['harga_total_transaksi_sparepart'],
+            ]);
+
+            // Step 4: Save sparepart details
+            foreach ($validatedData['spareparts'] as $sparepartData) {
                 $sparepart = Sparepart::firstOrCreate(
                     [
                         'jenis_sparepart' => $sparepartData['jenis_sparepart'],
@@ -62,20 +85,19 @@ class TransaksiSparepartController extends Controller
                     ['harga_sparepart' => $sparepartData['harga_sparepart']]
                 );
 
-                // Simpan detail transaksi
                 DetailTransaksiSparepart::create([
                     'id_transaksi_sparepart' => $jualSparepart->id_transaksi_sparepart,
                     'id_sparepart' => $sparepart->id_sparepart,
                     'jumlah_sparepart_terjual' => $sparepartData['jumlah_sparepart_terjual'],
                 ]);
             }
-            // Mengambil data dari form POST
-            $pembayaran = $request->input('pembayaran');  // Mengambil nilai dari input 'pembayaran'
+
+            DB::commit();
+
+            // Step 5: Redirect with payment details
+            $pembayaran = $request->input('pembayaran');
             $kembalian = $pembayaran - $jualSparepart->harga_total_transaksi_sparepart;
 
-            (['pembayaran' => $pembayaran, 'kembalian' => $kembalian]);
-            // Commit transaksi jika semua berhasil
-            DB::commit();
             return redirect()->route('transaksi_sparepart.nota', [
                 'id_transaksi_sparepart' => $jualSparepart->id_transaksi_sparepart,
                 'pembayaran' => $pembayaran,
@@ -83,10 +105,10 @@ class TransaksiSparepartController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan transaksi: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-        // return redirect()->route('transaksi_sparepart.index')->with('success', 'Transaksi berhasil disimpan.');
     }
+
 
     public function destroy($id_transaksi_sparepart)
     {
@@ -137,8 +159,8 @@ class TransaksiSparepartController extends Controller
 
         $totalHarga = $transaksi_sparepart->harga_total_transaksi_sparepart;
         // Mengambil pembayaran dan kembalian dari request (URL)
-        $pembayaran = $request->query('pembayaran', $transaksi_sparepart->harga_total_transaksi_sparepart); // Default to total if not set
-        $kembalian = $request->query('kembalian', $pembayaran - $transaksi_sparepart->harga_total_transaksi_sparepart); // Default to calculated difference
+        $pembayaran = $request->query('pembayaran', $transaksi_sparepart->harga_total_transaksi_sparepart);
+        $kembalian = $request->query('kembalian', $pembayaran - $transaksi_sparepart->harga_total_transaksi_sparepart);
 
         // Menyiapkan data untuk ditampilkan di view
         $data = [
@@ -148,7 +170,6 @@ class TransaksiSparepartController extends Controller
             'kembalian' => $kembalian,
         ];
 
-        // Generate the PDF or display the invoice view
         $pdf = PDF::loadView('transaksi_sparepart.nota', $data);
         return $pdf->download('invoice_' . $transaksi_sparepart->id_transaksi_sparepart . '.pdf');
         // return view('transaksi_sparepart.nota', compact('transaksi_sparepart', 'pembayaran', 'kembalian'));

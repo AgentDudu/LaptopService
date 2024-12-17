@@ -76,6 +76,8 @@
 
         .table-container {
             margin-top: 20px;
+            max-height: 1000px;
+            overflow-y: auto;
         }
 
         table {

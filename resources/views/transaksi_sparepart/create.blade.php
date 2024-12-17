@@ -144,8 +144,7 @@
                             <td>User</td>
                             <td width="9%"></td>
                             <td width="210px">
-                                <input list="pelanggan-options" name="pelanggan_input" id="pelanggan-input"
-                                    class="form-control" placeholder="Pilih/Ketik Nama User">
+                            <input list="pelanggan-options" name="pelanggan_input" id="pelanggan-input" class="form-control" placeholder="Pilih/Ketik Nama User" required>
                                 <datalist id="pelanggan-options">
                                     @foreach ($pelanggan as $pelangganItem)
                                         <option value="{{ $pelangganItem->nama_pelanggan }}"></option>
@@ -434,6 +433,10 @@
             } else {
                 nohpField.value = '';
             }
+        });
+
+        paymentModal.addEventListener("hidden.bs.modal", function () {
+            window.location.href = "{{ route('transaksi_sparepart.index') }}";
         });
     </script>
 
