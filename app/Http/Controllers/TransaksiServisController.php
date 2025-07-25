@@ -103,6 +103,7 @@ class TransaksiServisController extends Controller
             ]);
 
             $totalJasaServis = 0;
+            $subtotalServis = 0;
 
             foreach ($request->input('jasa_servis', []) as $jasaId) {
                 $jasaServis = JasaServis::find($jasaId);
@@ -147,10 +148,11 @@ class TransaksiServisController extends Controller
                         'jumlah_sparepart_terpakai' => $sparepartJumlah ? $sparepartJumlah : null,
                     ]);
 
-                    $totalJasaServis += $request->input('custom_price')[$jasaId];
+                    $subtotalServis += $request->input('custom_price')[$jasaId];
+                    $totalJasaServis += $request->input('custom_price')[$jasaId] + ($sparepartHarga ?? 0);
                 }
             }
-
+            $transaksiServis->update(['subtotal_servis' => $subtotalServis]);
             $transaksiServis->update(['harga_total_transaksi_servis' => $totalJasaServis]);
 
             DB::commit();
@@ -450,6 +452,7 @@ class TransaksiServisController extends Controller
             DetailTransaksiServis::where('id_service', $transaksiServis->id_service)->delete();
 
             $totalJasaServis = 0;
+            $subtotalServis = 0;
 
             foreach ($request->input('jasa_servis', []) as $jasaId) {
                 $jasaServis = JasaServis::find($jasaId);
@@ -490,10 +493,11 @@ class TransaksiServisController extends Controller
                         'jumlah_sparepart_terpakai' => $sparepartJumlah ? $sparepartJumlah : null,
                     ]);
 
-                    $totalJasaServis += $request->input('custom_price')[$jasaId];
+                    $subtotalServis += $request->input('custom_price')[$jasaId];
+                    $totalJasaServis += $request->input('custom_price')[$jasaId]  + ($sparepartHarga ?? 0);
                 }
             }
-
+            $transaksiServis->update(['subtotal_servis' => $subtotalServis]);
             $transaksiServis->update(['harga_total_transaksi_servis' => $totalJasaServis]);
 
             DB::commit();
