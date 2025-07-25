@@ -49,7 +49,8 @@ class LaporanController extends Controller
             ];
         });
 
-        $transactions = $serviceTransactions->merge($sparepartTransactions);
+        //$transactions = $serviceTransactions->merge($sparepartTransactions);
+        $transactions = collect($serviceTransactions)->merge(collect($sparepartTransactions));
 
         if ($type !== 'All') {
             $transactions = $transactions->filter(function ($transaction) use ($type) {

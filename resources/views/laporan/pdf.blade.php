@@ -96,9 +96,10 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($transactions as $index => $transaction)
+            @php $no = 1; @endphp
+            @foreach ($transactions as $transaction)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $no++ }}</td>
                     <td>{{ $transaction['id'] }}</td>
                     <td>{{ $transaction['type'] }}</td>
                     <td>{{ $transaction['date'] }}</td>

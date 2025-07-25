@@ -182,7 +182,7 @@
                                     <td><input type="text" class="form-control" id="model_sparepart"></td>
                                     <td><input type="number" class="form-control sparepart-jumlah_sparepart_terjual"
                                             id="jumlah_sparepart_terjual"></td>
-                                    <td><input type="number" class="form-control sparepart-harga_sparepart"
+                                    <td><input type="text" class="form-control sparepart-harga_sparepart"
                                             id="harga_sparepart"></td>
                                     <td><input type="text" class="form-control sparepart-subtotal" id="subtotal"
                                             readonly>
@@ -225,8 +225,8 @@
                                 <p class="form-control-static" id="kembalian">Rp. 0</p>
                             </div>
                             <button form="form-tambah" type="submit" class="btn btn-primary" id="bayarButton"
-                                onclick="window.location='{{ route('transaksi_sparepart.index') }}'">Bayar &
-                                Cetak</button>
+                                onclick=processPayment()>Bayar & Cetak
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -406,10 +406,6 @@
             });
 
             function processPayment() {
-                // Simulasikan proses pembayaran (misalnya, simpan data ke server)
-                // Dalam implementasi nyata, Anda bisa menggunakan AJAX untuk menyimpan data tanpa refresh
-
-                // Misal, tampilkan pesan berhasil terlebih dahulu (opsional)
                 alert("Pembayaran berhasil!");
 
                 // Mengubah tombol "Bayar" menjadi "Cetak Nota"

@@ -1,6 +1,8 @@
 <x-guest-layout>
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         <div id="whitebox" class="row border rounded-5 p-3 bg-white shadow box-area">
+
+            <!-- Left Box (Login Form) -->
             <div class="col-md-6 right-box">
                 <div class="logo d-flex align-items-center">
                     <a href="/">
@@ -8,122 +10,45 @@
                     </a>
                     <span class="ml-2 text-lg fw-bolder fs-4" style="text-shadow: 2px 2px 4px #99ff62;">Laptop Cafe Jogjakarta</span>
                 </div>
-                <div class="d-flex mb-4 tab-buttons">
-                    <button class="tablink btn w-50 active" onclick="openTab(event, 'Login')" id="loginTab">{{ __('Login') }}</button>
-                    <button class="tablink btn w-50" onclick="openTab(event, 'Register')" id="registerTab">{{ __('Register') }}</button>
+
+                <div class="row align-items-center">
+                    <div class="header-text mb-4">
+                         <h2>Halo, Selamat Datang Kembali!</h2>
+                         <p>Selamat Bekerja!</p>
+                    </div>
                 </div>
 
-                <!-- Login Tab -->
-                <div id="Login" class="tabcontent show">
-                    <x-auth-session-status class="mb-4" :status="session('status')" />
-                    <form method="POST" action="{{ route('login') }}">
-                        @csrf
-                        <div class="input-group mb-3 flex-column">
-                            <x-text-input id="nohp_teknisi" class="form-control form-control-lg bg-light fs-6"
-                                type="text" name="nohp_teknisi" :value="old('nohp_teknisi')" required autofocus
-                                autocomplete="nohp_teknisi" placeholder="Phone Number" />
-                            @if ($errors->has('nohp_teknisi'))
-                                <span class="text-danger">{{ $errors->first('nohp_teknisi') }}</span>
-                            @endif
-                        </div>
-                        <div class="input-group mb-1 flex-column">
-                            <x-text-input id="password" class="form-control form-control-lg bg-light fs-6 mb-3"
-                                type="password" name="password" required autocomplete="current-password"
-                                placeholder="Password" />
-                            @if ($errors->has('password'))
-                                <span class="text-danger">{{ $errors->first('password') }}</span>
-                            @endif
-                        </div>
-                        <div class="input-group mb-3">
-                            <x-primary-button class="btn btn-lg btn-primary w-100 fs-6">{{ __('Log in') }}</x-primary-button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Register Tab -->
-                <div id="Register" class="tabcontent">
-                    <form method="POST" action="{{ route('register') }}">
-                        @csrf
-                        <div class="input-group mb-3 flex-column">
-                            <x-text-input id="name" class="form-control form-control-lg bg-light fs-6"
-                                type="text" name="nama_teknisi" :value="old('nama_teknisi')" required autofocus
-                                autocomplete="name" placeholder="Name" />
-                            <x-input-error :messages="$errors->get('nama_teknisi')" class="mt-2" />
-                        </div>
-                        <div class="input-group mb-3 flex-column">
-                            <x-text-input id="phone" class="form-control form-control-lg bg-light fs-6"
-                                type="text" name="nohp_teknisi" :value="old('nohp_teknisi')" required
-                                autocomplete="phone" placeholder="Phone Number" />
-                            <x-input-error :messages="$errors->get('nohp_teknisi')" class="mt-2" />
-                        </div>
-                        <div class="input-group mb-3 flex-column">
-                            <x-text-input id="password" class="form-control form-control-lg bg-light fs-6"
-                                type="password" name="password" required autocomplete="new-password"
-                                placeholder="Password" />
-                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                        </div>
-                        <div class="input-group mb-3 flex-column">
-                            <x-text-input id="password_confirmation" class="form-control form-control-lg bg-light fs-6"
-                                type="password" name="password_confirmation" required autocomplete="new-password"
-                                placeholder="Confirm Password" />
-                            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                        </div>
-
-                        <div class="mt-4">
-                            <x-input-label for="status" :value="__('Status')" />
-                            <select id="status" name="status" class="block mt-1 w-full" required>
-                                <option value="Pegawai" {{ old('status') == 'Pegawai' ? 'selected' : '' }}>Pegawai</option>
-                                <option value="Pemilik" {{ old('status') == 'Pemilik' ? 'selected' : '' }}>Pemilik</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('status')" class="mt-2" />
-                        </div>
-
-
-                        <div class="input-group" style="padding-top: 30px;">
-                            <x-primary-button class="btn btn-lg btn-primary w-100 fs-6">{{ __('Register') }}</x-primary-button>
-                        </div>
-                    </form>
-                </div>
+                <x-auth-session-status class="mb-4" :status="session('status')" />
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+                    <div class="input-group mb-3 flex-column">
+                        <x-text-input id="nohp_teknisi" class="form-control form-control-lg bg-light fs-6"
+                            type="text" name="nohp_teknisi" :value="old('nohp_teknisi')" required autofocus
+                            autocomplete="nohp_teknisi" placeholder="Nomor HP" />
+                        @if ($errors->has('nohp_teknisi'))
+                            <span class="text-danger">{{ $errors->first('nohp_teknisi') }}</span>
+                        @endif
+                    </div>
+                    <div class="input-group mb-1 flex-column">
+                        <x-text-input id="password" class="form-control form-control-lg bg-light fs-6 mb-3"
+                            type="password" name="password" required autocomplete="current-password"
+                            placeholder="Kata Sandi" />
+                        @if ($errors->has('password'))
+                            <span class="text-danger">{{ $errors->first('password') }}</span>
+                        @endif
+                    </div>
+                    <div class="input-group mb-3">
+                        <x-primary-button class="btn btn-lg btn-primary w-100 fs-6">{{ __('Masuk') }}</x-primary-button>
+                    </div>
+                </form>
             </div>
 
-            <!-- Right Box Section (Background) -->
+            <!-- Right Box (Background Image) -->
             <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box"
                 style="background: url('{{asset('images/login-bg.png')}}') no-repeat center center; background-size: 420px 720px;">
             </div>
         </div>
     </div>
-
-    <script>
-        function openTab(evt, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].classList.remove("show");
-            }
-            tablinks = document.getElementsByClassName("tablink");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-            document.getElementById(tabName).classList.add("show");
-            evt.currentTarget.classList.add("active");
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const hasErrors = {{ $errors->any() ? 'true' : 'false' }};
-            const loginErrors = {{ $errors->has('nohp_teknisi') || $errors->has('password') ? 'true' : 'false' }};
-            const registerErrors = {{ $errors->has('nama_teknisi') || $errors->has('nohp_teknisi') || $errors->has('password') || $errors->has('password_confirmation') ? 'true' : 'false' }};
-
-            if (hasErrors) {
-                if (loginErrors) {
-                    document.getElementById("loginTab").click();
-                } else if (registerErrors) {
-                    document.getElementById("registerTab").click();
-                }
-            } else {
-                document.getElementById("loginTab").click();
-            }
-        });
-    </script>
 
     <style>
         body {
@@ -161,57 +86,6 @@
             border-radius: 30px;
         }
 
-        .tablink {
-            background-color: inherit;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            padding: 14px 16px;
-            transition: color 0.3s, border-bottom 0.3s;
-            font-size: 17px;
-            flex: 1;
-            text-align: center;
-            position: relative;
-            color: #000;
-        }
-
-        .tablink::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background-color: #067D40;
-            transition: width 0.3s, left 0.3s;
-        }
-
-        .tablink.active::before {
-            width: 100%;
-            left: 0;
-        }
-
-        .tablink.active {
-            color: #067D40;
-        }
-
-        .tabcontent {
-            display: none;
-            padding: 6px 12px;
-            border-top: none;
-            border: none;
-            outline: none;
-            transition: opacity 0.3s, height 0.3s;
-            opacity: 0;
-            height: 0;
-        }
-
-        .tabcontent.show {
-            display: block;
-            opacity: 1;
-            height: auto;
-        }
-
         .d-flex {
             display: flex;
         }
@@ -238,5 +112,72 @@
         .input-group .form-control {
             width: 100%;
         }
+
+        /* --- Intro Animation CSS --- */
+
+        /* Define Keyframes */
+        @keyframes fadeInScaleUp {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideInFromRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CORRECTED: Initial state for only the elements we intend to animate */
+        #whitebox,
+        .left-box,
+        .right-box .logo,
+        .right-box .header-text,
+        .right-box .mb-4, /* This targets the auth-session-status */
+        .right-box form .input-group {
+            opacity: 0;
+            animation-fill-mode: forwards; /* Keeps the final state of the animation */
+        }
+
+        /* Apply animations with delays */
+
+        /* 1. Animate the main container */
+        #whitebox {
+            animation: fadeInScaleUp 0.6s ease-out forwards;
+        }
+
+        /* 2. Animate the right-side image box */
+        .left-box {
+            animation: slideInFromRight 0.8s ease-out 0.4s forwards;
+        }
+
+        /* 3. Stagger animations for the left-side form elements */
+        .right-box .logo {
+            animation: fadeInDown 0.5s ease-out 0.8s forwards;
+        }
+
+        .right-box .header-text {
+            animation: fadeInDown 0.5s ease-out 1.0s forwards;
+        }
+
+        .right-box .mb-4 { /* Session status message fades in with the header */
+            animation: fadeInDown 0.5s ease-out 1.0s forwards;
+        }
+
+        .right-box form .input-group:nth-of-type(1) {
+            animation: fadeInDown 0.5s ease-out 1.2s forwards;
+        }
+
+        .right-box form .input-group:nth-of-type(2) {
+            animation: fadeInDown 0.5s ease-out 1.4s forwards;
+        }
+
+        .right-box form .input-group:nth-of-type(3) { /* The button */
+            animation: fadeInDown 0.5s ease-out 1.6s forwards;
+        }
+
     </style>
 </x-guest-layout>

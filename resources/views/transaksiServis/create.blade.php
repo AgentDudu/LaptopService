@@ -186,7 +186,7 @@ use Illuminate\Support\Facades\Auth;
                                         </label>
 
                                         <!-- Input for custom price -->
-                                        <input type="number" class="form-control mt-2 jasa-servis-price-input"
+                                        <input type="text" class="form-control mt-2 jasa-servis-price-input"
                                             name="custom_price[{{ $jasa->id_jasa }}]" placeholder="Enter Price"
                                             id="customPrice_{{ $jasa->id_jasa }}"
                                             data-default-price="{{ $jasa->harga_jasa }}">
@@ -221,7 +221,7 @@ use Illuminate\Support\Facades\Auth;
                         <!-- Submit Buttons -->
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-success">Simpan</button>
-                            <button type="reset" class="btn btn-danger">Reset</button>
+                            <button type="button" class="btn btn-danger">Reset</button>
                             <a href="{{ route('transaksiServis.index') }}" class="btn btn-secondary">Kembali</a>
                         </div>
                 </form>
@@ -455,6 +455,15 @@ use Illuminate\Support\Facades\Auth;
             });
 
             priceInput.addEventListener('input', function() {
+                // let cursorPos = priceInput.selectionStart;
+                // let raw = priceInput.value.replace(/\D/g, '');
+
+                // if (raw) {
+                //     priceInput.value = new Intl.NumberFormat('id-ID').format(raw);
+                // } else {
+                //     priceInput.value = '';
+                // }
+                
                 if (checkbox.checked) {
                     calculateTotalTransaksi();
                 }
@@ -530,23 +539,9 @@ use Illuminate\Support\Facades\Auth;
             calculateSubtotal(sparepartCount);
         });
 
-        // Event listeners for checkbox and custom price inputs
-        jasaCheckboxes.forEach(checkbox => {
-            const jasaId = checkbox.value;
-            const priceInput = document.getElementById(`customPrice_${jasaId}`);
-
-            checkbox.addEventListener('change', calculateTotalTransaksi);
-            priceInput.addEventListener('input', function() {
-                if (checkbox.checked) {
-                    calculateTotalTransaksi();
-                }
-            });
-        });
-
         // Initial calculation
         calculateTotalTransaksi();
     });
-
 
     </script>
 

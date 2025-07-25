@@ -80,7 +80,7 @@
                             <th>Teknisi</th>
                             <th>Nama User</th>
                             <th>Tanggal</th>
-                            <th>Jumlah</th>
+                            <th>Jumlah Sparepart</th>
                             <th>Harga Total</th>
                             <th>Aksi</th>
                         </tr>

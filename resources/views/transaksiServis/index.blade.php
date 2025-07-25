@@ -1,5 +1,5 @@
 @php
-use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Auth;
 @endphp
 
 <!DOCTYPE html>
@@ -13,43 +13,43 @@ use Illuminate\Support\Facades\Auth;
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"
         rel="stylesheet">
     <style>
-    .main-container {
-        display: flex;
-        background-color: #067D40;
-    }
+        .main-container {
+            display: flex;
+            background-color: #067D40;
+        }
 
-    .sidebar {
-        width: 245px;
-        background-color: #067D40;
-    }
+        .sidebar {
+            width: 245px;
+            background-color: #067D40;
+        }
 
-    .content {
-        flex: 1;
-        padding: 20px;
-        margin: 20px 20px 20px 0;
-        background-color: #F8F9FA;
-        border-radius: 20px;
-        max-height: 85%;
-    }
+        .content {
+            flex: 1;
+            padding: 20px;
+            margin: 20px 20px 20px 0;
+            background-color: #F8F9FA;
+            border-radius: 20px;
+            max-height: 85%;
+        }
 
-    #content-frame {
-        max-width: 100%;
-        background-color: #F8F9FA;
-        max-height: 500px;
-        overflow-y: scroll;
-    }
+        #content-frame {
+            max-width: 100%;
+            background-color: #F8F9FA;
+            max-height: 500px;
+            overflow-y: scroll;
+        }
 
-    table {
-        margin-left: -12px;
+        table {
+            margin-left: -12px;
 
-    }
+        }
 
-    .center-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-    }
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
     </style>
 </head>
 
@@ -58,9 +58,9 @@ use Illuminate\Support\Facades\Auth;
         <!-- Sidebar -->
         <div class="sidebar text-white">
             @if (Auth::user()->status === 'Pegawai')
-            <x-sidebar-nonadmin />
+                <x-sidebar-nonadmin />
             @else
-            <x-sidebar-admin />
+                <x-sidebar-admin />
             @endif
         </div>
 
@@ -92,51 +92,64 @@ use Illuminate\Support\Facades\Auth;
                     </thead>
                     <tbody>
                         @foreach ($jasaServis as $index => $servis)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $servis->id_service }}</td>
-                            <td>{{ $servis->teknisi ? $servis->teknisi->nama_teknisi : 'N/A' }}</td>
-                            <td>{{ $servis->pelanggan ? $servis->pelanggan->nama_pelanggan : 'N/A' }}</td>
-                            <td>{{ $servis->laptop ? $servis->laptop->merek_laptop : 'N/A' }}</td>
-                            <td>{{ \Carbon\Carbon::parse($servis->tanggal_masuk)->format('d-m-Y') }}</td>
-                            <td>
-                                @if($servis->detailTransaksiServis->isNotEmpty())
-                                @foreach($servis->detailTransaksiServis as $detail)
-                                {{ $detail->jasaServis->jenis_jasa }}
-                                @endforeach
-                                @else
-                                N/A
-                                @endif
-                            </td>
-                            <td>
-                                @if($servis->status_bayar == 'Sudah dibayar')
-                                <span class="badge bg-success">Sudah dibayar</span>
-                                @else
-                                <span class="badge bg-danger">Belum dibayar</span>
-                                @endif
-                            </td>
-                            <td>
-                                <!-- Lihat Button -->
-                                <a href="{{ route('transaksiServis.show', $servis->id_service) }}"
-                                    class="btn btn-success">Lihat</a>
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $servis->id_service }}</td>
+                                <td>{{ $servis->teknisi ? $servis->teknisi->nama_teknisi : 'N/A' }}</td>
+                                <td>{{ $servis->pelanggan ? $servis->pelanggan->nama_pelanggan : 'N/A' }}</td>
+                                <td>{{ $servis->laptop ? $servis->laptop->merek_laptop : 'N/A' }}</td>
+                                <td>{{ \Carbon\Carbon::parse($servis->tanggal_masuk)->format('d-m-Y') }}</td>
+                                <td>
+                                    @if ($servis->detailTransaksiServis->isNotEmpty())
+                                        @foreach ($servis->detailTransaksiServis as $detail)
+                                            {{ $detail->jasaServis->jenis_jasa }}
+                                        @endforeach
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($servis->status_bayar == 'Sudah dibayar')
+                                        <span class="badge bg-success">Sudah dibayar</span>
+                                    @else
+                                        <span class="badge bg-danger">Belum dibayar</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <!-- Lihat Button -->
+                                    <a href="{{ route('transaksiServis.show', $servis->id_service) }}"
+                                        class="btn btn-success">Lihat</a>
 
-                                <!-- Edit Button -->
-                                <a href="{{ route('transaksiServis.edit', $servis->id_service) }}"
-                                    class="btn btn-warning">Edit</a>
+                                    <!-- Edit Button -->
+                                    @if ($servis->status_bayar != 'Sudah dibayar')
+                                        <a href="{{ route('transaksiServis.edit', $servis->id_service) }}"
+                                        class="btn btn-warning">Edit</a>
+                                    @else
+                                        <a href="{{ route('transaksiServis.edit', $servis->id_service) }}"
+                                        class="btn btn-warning disabled">Edit</a>
+                                    @endif
 
-                                <!-- Delete Button triggers the modal -->
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal"
-                                    onclick="setDeleteAction('{{ route('transaksiServis.destroy', $servis->id_service) }}')">
-                                    Delete
-                                </button>
+                                    <!-- Delete Button triggers the modal -->
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        onclick="setDeleteAction('{{ route('transaksiServis.destroy', $servis->id_service) }}')">
+                                        Delete
+                                    </button>
 
-                                <!-- Cetak Nota Sementara -->
-                                <button class="btn btn-info temp-invoice-btn" data-id="{{ $servis->id_service }}">
-                                    Nota Sementara
-                                </button>
-                            </td>
-                        </tr>
+                                    <!-- Cetak Nota Sementara -->
+                                    @if ($servis->status_bayar == 'Pending')
+                                        <button class="btn btn-info temp-invoice-btn"
+                                            data-id="{{ $servis->id_service }}">
+                                            Nota Sementara
+                                        </button>
+                                    @elseif ($servis->status_bayar == 'Sudah dibayar')
+                                        <a href="{{ route('transaksiServis.cetakNota', $servis->id_service) }}"
+                                            class="btn btn-dark" target="_blank">
+                                            Nota Transaksi
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -168,7 +181,8 @@ use Illuminate\Support\Facades\Auth;
     </div>
 
     <!-- Modal for Sending Temp Invoice to Whatsapp Feedback -->
-    <div class="modal fade" id="tempInvoiceModal" tabindex="-1" aria-labelledby="tempInvoiceModalLabel" aria-hidden="true">
+    <div class="modal fade" id="tempInvoiceModal" tabindex="-1" aria-labelledby="tempInvoiceModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -186,42 +200,47 @@ use Illuminate\Support\Facades\Auth;
     </div>
 
     <script>
-    function setDeleteAction(actionUrl) {
-        document.getElementById('deleteForm').action = actionUrl;
-    }
+        function setDeleteAction(actionUrl) {
+            document.getElementById('deleteForm').action = actionUrl;
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-        const tempInvoiceButtons = document.querySelectorAll('.temp-invoice-btn');
+        document.addEventListener('DOMContentLoaded', function() {
+            const tempInvoiceButtons = document.querySelectorAll('.temp-invoice-btn');
 
-        tempInvoiceButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const serviceId = button.getAttribute('data-id');
+            tempInvoiceButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const serviceId = button.getAttribute('data-id');
 
-                window.open(`/transaksiServis/tempInvoice/${serviceId}`, '_blank');
+                    window.open(`/transaksiServis/tempInvoice/${serviceId}`, '_blank');
 
-                axios.post('/transaksiServis/sendTempInvoiceToWhatsapp', { id_service: serviceId })
-                    .then(response => {
-                        const modalMessage = document.getElementById('tempInvoiceMessage');
-                        const modal = new bootstrap.Modal(document.getElementById('tempInvoiceModal'));
+                    axios.post('/transaksiServis/sendTempInvoiceToWhatsapp', {
+                            id_service: serviceId
+                        })
+                        .then(response => {
+                            const modalMessage = document.getElementById('tempInvoiceMessage');
+                            const modal = new bootstrap.Modal(document.getElementById(
+                                'tempInvoiceModal'));
 
-                        modalMessage.textContent = response.data.message;
-                        modal.show();
-                    })
-                    .catch(error => {
-                        console.error('Error sending WhatsApp message:', error);
+                            modalMessage.textContent = response.data.message;
+                            modal.show();
+                        })
+                        .catch(error => {
+                            console.error('Error sending WhatsApp message:', error);
 
-                        const modalMessage = document.getElementById('tempInvoiceMessage');
-                        const modal = new bootstrap.Modal(document.getElementById('tempInvoiceModal'));
+                            const modalMessage = document.getElementById('tempInvoiceMessage');
+                            const modal = new bootstrap.Modal(document.getElementById(
+                                'tempInvoiceModal'));
 
-                        modalMessage.textContent = 'Terjadi kesalahan saat mengirim nota sementara ke WhatsApp.';
-                        modal.show();
-                    });
+                            modalMessage.textContent =
+                                'Terjadi kesalahan saat mengirim nota sementara ke WhatsApp.';
+                            modal.show();
+                        });
+                });
             });
         });
-    });
     </script>
 
 </body>

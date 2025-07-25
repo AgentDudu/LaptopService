@@ -309,7 +309,8 @@ use Illuminate\Support\Facades\Auth;
                         <!-- Submit Buttons -->
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Simpan</button>
-                            <button type="reset" class="btn btn-secondary">Reset</button>
+                            <button type="button" class="btn btn-danger">Reset</button>
+                            <a href="{{ route('transaksiServis.index') }}" class="btn btn-secondary">Kembali</a>
                         </div>
 
                 </form>
