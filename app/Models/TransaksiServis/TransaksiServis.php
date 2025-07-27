@@ -5,9 +5,10 @@ namespace App\Models\TransaksiServis;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Pelanggan\Pelanggan;
-use App\Models\Teknisi;
-use App\Models\TransaksiServis\DetailTransaksiServis;
+use App\Models\Auth\Teknisi;
 use App\Models\Laptop\Laptop;
+use App\Models\TransaksiServis\DetailTransaksiServis;
+use App\Models\TransaksiServis\DetailTransaksiServisSparepart;
 
 class TransaksiServis extends Model
 {
@@ -23,26 +24,29 @@ class TransaksiServis extends Model
         parent::boot();
 
         static::creating(function ($transaksiServis) {
-            $latestTransaksiServis = static::latest('id_service')->first();
-
-            if (!$latestTransaksiServis) {
-                $nextIdNumber = 1;
-            } else {
-                $lastId = (int) str_replace('TSV', '', $latestTransaksiServis->id_service);
-                $nextIdNumber = $lastId + 1;
+            if (!$transaksiServis->id_service) {
+                $latestTransaksiServis = static::latest('id_service')->first();
+                if (!$latestTransaksiServis) {
+                    $nextIdNumber = 1;
+                } else {
+                    $lastId = (int) str_replace('TSV', '', $latestTransaksiServis->id_service);
+                    $nextIdNumber = $lastId + 1;
+                }
+                $transaksiServis->id_service = 'TSV' . $nextIdNumber;
             }
-
-            $transaksiServis->id_service = 'TSV' . $nextIdNumber; 
         });
     }
 
     protected $fillable = [
+        'id_service',
         'id_laptop',
         'id_teknisi',
         'tanggal_masuk',
         'tanggal_keluar',
         'status_bayar',
-        'harga_total_transaksi_servis'
+        'subtotal_servis',                // Menyimpan total harga semua jasa
+        'subtotal_sparepart',             // Menyimpan total harga semua sparepart
+        'harga_total_transaksi_servis'    // Menyimpan grand total
     ];
 
     public function teknisi()
@@ -55,10 +59,10 @@ class TransaksiServis extends Model
         return $this->hasOneThrough(
             Pelanggan::class,
             Laptop::class,
-            'id_laptop',
-            'id_pelanggan',
-            'id_laptop',
-            'id_pelanggan'
+            'id_laptop',      // Foreign key on laptops table
+            'id_pelanggan',   // Foreign key on pelanggan table
+            'id_laptop',      // Local key on service table
+            'id_pelanggan'    // Local key on laptops table
         );
     }
 
@@ -67,8 +71,19 @@ class TransaksiServis extends Model
         return $this->belongsTo(Laptop::class, 'id_laptop', 'id_laptop');
     }
 
+    /**
+     * Relasi untuk detail JASA
+     */
     public function detailTransaksiServis()
     {
         return $this->hasMany(DetailTransaksiServis::class, 'id_service', 'id_service');
+    }
+
+    /**
+     * Relasi untuk detail SPAREPART
+     */
+    public function detailServisSpareparts()
+    {
+        return $this->hasMany(DetailTransaksiServisSparepart::class, 'id_service', 'id_service');
     }
 }

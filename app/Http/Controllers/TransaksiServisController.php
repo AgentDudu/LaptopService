@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\TransaksiServis\TransaksiServis;
 use App\Models\TransaksiServis\JasaServis;
 use App\Models\TransaksiServis\DetailTransaksiServis;
+use App\Models\TransaksiServis\DetailTransaksiServisSparepart;
 use App\Models\Sparepart\Sparepart;
 use App\Models\Pelanggan\Pelanggan;
 use App\Models\Auth\Teknisi;
@@ -45,153 +46,145 @@ class TransaksiServisController extends Controller
 
     public function create()
     {
+        // KEMBALIKAN LOGIKA INI HANYA UNTUK DITAMPILKAN DI VIEW
         $lastService = TransaksiServis::latest('id_service')->first();
-
-        if ($lastService) {
-            $lastIdNumber = (int) str_replace('TSV', '', $lastService->id_service);
-            $nextIdNumber = $lastIdNumber + 1;
-        } else {
-            $nextIdNumber = 1;
-        }
-
+        $nextIdNumber = $lastService ? (int) str_replace('TSV', '', $lastService->id_service) + 1 : 1;
         $newId = 'TSV' . $nextIdNumber;
 
         $pelanggan = Pelanggan::all();
         $laptops = Laptop::all();
         $jasaServisList = JasaServis::all();
 
+        // Kirim $newId kembali ke view
         return view('transaksiServis.create', compact('newId', 'pelanggan', 'laptops', 'jasaServisList'));
     }
 
-    public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'id_servis' => 'required',
-            'tanggal_masuk' => 'required|date',
-            'status_bayar' => 'required',
-            'jasa_servis' => 'required|array',
-            'nama_pelanggan' => 'required',
-            'nohp_pelanggan' => 'required',
-            'merek_laptop' => 'required',
-            'keluhan' => 'required',
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        // Hapus validasi untuk 'id_servis' karena akan dibuat otomatis
+        'tanggal_masuk' => 'required|date',
+        'status_bayar' => 'required|string',
+        'nama_pelanggan' => 'required|string',
+        'nohp_pelanggan' => 'required|string',
+        'merek_laptop' => 'required|string',
+        'keluhan' => 'required|string',
+        'jasa_servis' => 'required|array|min:1',
+        'jangka_garansi' => 'required|array',
+        'akhir_garansi' => 'required|array',
+        'spareparts' => 'nullable|array',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        // 1. Urus Pelanggan dan Laptop
+        $pelanggan = Pelanggan::firstOrCreate(
+            ['nohp_pelanggan' => $request->nohp_pelanggan],
+            ['nama_pelanggan' => $request->nama_pelanggan]
+        );
+        $laptop = Laptop::firstOrCreate(
+            ['id_pelanggan' => $pelanggan->id_pelanggan, 'merek_laptop' => $request->merek_laptop],
+            ['deskripsi_masalah' => $request->keluhan]
+        );
+
+        // 2. BUAT record TransaksiServis SEKALI SAJA di awal
+        // Model akan otomatis membuat ID unik (misal: TSV6)
+        $transaksiServis = TransaksiServis::create([
+            'id_laptop' => $laptop->id_laptop,
+            'id_teknisi' => Auth::user()->id_teknisi,
+            'tanggal_masuk' => $request->tanggal_masuk,
+            'tanggal_keluar' => $request->tanggal_keluar,
+            'status_bayar' => $request->status_bayar,
+            'subtotal_servis' => 0, // Nilai sementara
+            'subtotal_sparepart' => 0, // Nilai sementara
+            'harga_total_transaksi_servis' => 0, // Nilai sementara
         ]);
 
-        try {
-            DB::beginTransaction();
+        // Variabel untuk menampung total
+        $totalHargaJasa = 0;
+        $totalHargaSparepart = 0;
 
-            $pelanggan = Pelanggan::firstOrCreate(
-                ['nohp_pelanggan' => $request->input('nohp_pelanggan')],
-                ['nama_pelanggan' => $request->input('nama_pelanggan')]
-            );
+        // 3. Simpan Detail Jasa Servis dan hitung totalnya
+        foreach ($request->jasa_servis as $jasaId) {
+            $hargaJasa = $request->custom_price[$jasaId] ?? JasaServis::find($jasaId)->harga_jasa;
+            $jangkaGaransi = $request->jangka_garansi[$jasaId] ?? 0;
+            $akhirGaransi = $request->akhir_garansi[$jasaId] ?? null;
 
-            $laptop = Laptop::firstOrCreate(
-                [
-                    'id_pelanggan' => $pelanggan->id_pelanggan,
-                    'merek_laptop' => $request->input('merek_laptop'),
-                ],
-                ['deskripsi_masalah' => $request->input('keluhan')]
-            );
-
-            $transaksiServis = TransaksiServis::create([
-                'id_servis' => $request->input('id_servis'),
-                'id_laptop' => $laptop->id_laptop,
-                'id_teknisi' => Auth::user()->id_teknisi,
-                'tanggal_masuk' => $request->input('tanggal_masuk'),
-                'tanggal_keluar' => $request->input('tanggal_keluar'),
-                'status_bayar' => $request->input('status_bayar'),
-                'harga_total_transaksi_servis' => 0,
+            DetailTransaksiServis::create([
+                'id_service' => $transaksiServis->id_service, // Gunakan ID yang baru dibuat
+                'id_jasa' => $jasaId,
+                'harga_transaksi_jasa_servis' => $hargaJasa,
+                'jangka_garansi_bulan' => $jangkaGaransi,
+                'akhir_garansi' => $akhirGaransi,
             ]);
-
-            $totalJasaServis = 0;
-            $subtotalServis = 0;
-
-            foreach ($request->input('jasa_servis', []) as $jasaId) {
-                $jasaServis = JasaServis::find($jasaId);
-                $tglMulai = $request->input("tgl_mulai_{$jasaServis->jenis_jasa}", Carbon::today()->format('Y-m-d'));
-                $jangkaGaransi = $request->input("jangka_garansi_{$jasaServis->jenis_jasa}", 1);
-
-                $akhirGaransi = Carbon::parse($tglMulai)->addMonths($jangkaGaransi)->subDay()->format('Y-m-d');
-
-                if ($jasaServis) {
-                    $sparepartTipe = $request->input("sparepart_tipe_1");
-                    $sparepartMerek = $request->input("sparepart_merek_1");
-                    $sparepartModel = $request->input("sparepart_model_1");
-                    $sparepartJumlah = $request->input("sparepart_jumlah_1");
-                    $sparepartHarga = $request->input("sparepart_harga_1");
-                    $sparepartSubtotal = $request->input("sparepart_subtotal_1");
-
-                    $sparepartId = null;
-                    if ($sparepartTipe && $sparepartMerek && $sparepartModel) {
-                        $sparepart = Sparepart::firstOrCreate(
-                            [
-                                'jenis_sparepart' => $sparepartTipe,
-                                'merek_sparepart' => $sparepartMerek,
-                                'model_sparepart' => $sparepartModel
-                            ],
-                            [
-                                'harga_sparepart' => $sparepartHarga,
-                            ]
-                        );
-
-                        $sparepartId = $sparepart->id_sparepart;
-                    }
-
-                    DetailTransaksiServis::create([
-                        'id_service' => $transaksiServis->id_service,
-                        'id_jasa' => $jasaServis->id_jasa,
-                        'id_sparepart' => $sparepartId, // Save sparepart ID if available
-                        'harga_transaksi_jasa_servis' => $request->input('custom_price')[$jasaId],
-                        'jangka_garansi_bulan' => $request->input("jangka_garansi_{$jasaServis->jenis_jasa}", 1),
-                        'akhir_garansi' => $akhirGaransi,
-                        'subtotal_servis' => $request->input('custom_price')[$jasaId],
-                        'subtotal_sparepart' => $sparepartSubtotal ? $sparepartSubtotal : 0,
-                        'jumlah_sparepart_terpakai' => $sparepartJumlah ? $sparepartJumlah : null,
-                    ]);
-
-                    $subtotalServis += $request->input('custom_price')[$jasaId];
-                    $totalJasaServis += $request->input('custom_price')[$jasaId] + ($sparepartHarga ?? 0);
-                }
-            }
-            $transaksiServis->update(['subtotal_servis' => $subtotalServis]);
-            $transaksiServis->update(['harga_total_transaksi_servis' => $totalJasaServis]);
-
-            DB::commit();
-
-            return redirect()->route('transaksiServis.index')->with('success', 'Transaksi Servis created successfully!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Error creating Transaksi Servis: ' . $e->getMessage());
-            return redirect()->back()->withErrors('Error creating Transaksi Servis: ' . $e->getMessage());
+            $totalHargaJasa += $hargaJasa;
         }
+
+        // 4. Simpan Detail Sparepart dan hitung totalnya
+        if ($request->has('spareparts')) {
+            foreach ($request->spareparts as $part) {
+                if (empty($part['jenis_sparepart']) || $part['jenis_sparepart'] === '-') continue;
+
+                $sparepart = Sparepart::firstOrCreate(
+                    ['jenis_sparepart' => $part['jenis_sparepart'], 'merek_sparepart' => $part['merek_sparepart'], 'model_sparepart' => $part['model_sparepart']],
+                    ['harga_sparepart' => $part['harga']]
+                );
+                $subtotalPart = ($part['jumlah'] ?? 1) * ($part['harga'] ?? 0);
+
+                DetailTransaksiServisSparepart::create([
+                    'id_service' => $transaksiServis->id_service, // Gunakan ID yang baru dibuat
+                    'id_sparepart' => $sparepart->id_sparepart,
+                    'jumlah_sparepart_terpakai' => $part['jumlah'],
+                    'harga_per_unit' => $part['harga'],
+                    'subtotal_sparepart' => $subtotalPart,
+                ]);
+                $totalHargaSparepart += $subtotalPart;
+            }
+        }
+
+        // 5. UPDATE record TransaksiServis dengan total yang benar
+        $transaksiServis->subtotal_servis = $totalHargaJasa;
+        $transaksiServis->subtotal_sparepart = $totalHargaSparepart;
+        $transaksiServis->harga_total_transaksi_servis = $totalHargaJasa + $totalHargaSparepart;
+        $transaksiServis->save();
+
+        DB::commit();
+
+        return redirect()->route('transaksiServis.index')->with('success', 'Transaksi Servis berhasil dibuat!');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error creating Transaksi Servis: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+        return redirect()->back()->withInput()->withErrors('Gagal membuat transaksi: ' . $e->getMessage());
     }
+}
 
     public function show($id)
     {
-        $transaksiServis = TransaksiServis::with(['detailTransaksiServis.jasaServis', 'detailTransaksiServis.sparepart'])->findOrFail($id);
-        $pelanggan = Pelanggan::all();
-        $laptops = Laptop::all();
+        // 1. Ganti relasi yang di-load
+        $transaksiServis = TransaksiServis::with([
+            'pelanggan',
+            'laptop',
+            'teknisi',
+            'detailTransaksiServis.jasaServis', // Relasi untuk Jasa
+            'detailServisSpareparts.sparepart' // Relasi BARU untuk Sparepart
+        ])->findOrFail($id);
+        
         $jasaServisList = JasaServis::all();
 
+        // 2. Siapkan data untuk view dari sumber yang benar
         $selectedJasaIds = $transaksiServis->detailTransaksiServis->pluck('id_jasa')->toArray();
-        $selectedCustomPrices = [];
-        $selectedSpareparts = [];
+        $selectedCustomPrices = $transaksiServis->detailTransaksiServis->pluck('harga_transaksi_jasa_servis', 'id_jasa');
 
-        foreach ($transaksiServis->detailTransaksiServis as $detail) {
-            $selectedCustomPrices[$detail->id_jasa] = $detail->harga_transaksi_jasa_servis;
+        // $selectedSpareparts sekarang diambil dari relasi detailServisSpareparts
+        // Kita tidak perlu lagi membuat array ini secara manual di sini, karena kita bisa loop langsung di view.
 
-            if ($detail->id_sparepart) {
-                $selectedSpareparts[$detail->id_jasa] = [
-                    'jenis_sparepart' => $detail->sparepart->jenis_sparepart ?? null,
-                    'merek_sparepart' => $detail->sparepart->merek_sparepart ?? null,
-                    'model_sparepart' => $detail->sparepart->model_sparepart ?? null,
-                    'jumlah_sparepart' => $detail->jumlah_sparepart ?? null,
-                    'harga_sparepart' => $detail->sparepart->harga_sparepart ?? null,
-                    'subtotal_sparepart' => $detail->subtotal_sparepart ?? 0,
-                ];
-            }
-        }
-
-        return view('transaksiServis.show', compact('transaksiServis', 'pelanggan', 'laptops', 'jasaServisList', 'selectedJasaIds', 'selectedCustomPrices', 'selectedSpareparts'));
+        return view('transaksiServis.show', compact(
+            'transaksiServis',
+            'jasaServisList',
+            'selectedJasaIds',
+            'selectedCustomPrices'
+        ));
     }
 
     public function bayar(Request $request)
@@ -304,9 +297,17 @@ class TransaksiServisController extends Controller
 
     public function cetakNota($id)
     {
-        $transaksiServis = TransaksiServis::with(['detailTransaksiServis.jasaServis', 'detailTransaksiServis.sparepart', 'pelanggan', 'laptop'])->findOrFail($id);
+        // 1. Ganti relasi yang di-load
+        $transaksiServis = TransaksiServis::with([
+            'pelanggan',
+            'laptop',
+            'teknisi', // Tambahkan teknisi jika belum ada
+            'detailTransaksiServis.jasaServis',
+            'detailServisSpareparts.sparepart' // Muat relasi yang BENAR
+        ])->findOrFail($id);
 
-        $totalHarga = $transaksiServis->harga_total_transaksi_servis + $transaksiServis->detailTransaksiServis->sum('subtotal_sparepart');
+        // Kalkulasi total sekarang lebih sederhana
+        $totalHarga = $transaksiServis->harga_total_transaksi_servis;
 
         $pembayaran = request('pembayaran', $totalHarga);
         $kembalian = request('kembalian', $pembayaran - $totalHarga);
@@ -322,106 +323,52 @@ class TransaksiServisController extends Controller
 
         return $pdf->download('Nota_Servis_' . $transaksiServis->id_service . '.pdf');
     }
-
-    public function sendInvoiceToWhatsapp(Request $request)
-    {
-        $request->validate([
-            'id_service' => 'required|exists:service,id_service',
-            'pembayaran' => 'required|numeric|min:0',
-            'kembalian' => 'required|numeric'
-        ]);
-
-        $transaksiServis = TransaksiServis::with('pelanggan')->findOrFail($request->id_service);
-        $whatsappNumber = $transaksiServis->pelanggan->nohp_pelanggan;
-
-        if (substr($whatsappNumber, 0, 1) === '0') {
-            $whatsappNumber = '62' . substr($whatsappNumber, 1);
-        }
-
-        $totalHarga = $transaksiServis->harga_total_transaksi_servis;
-        $messageText = "Halo {$transaksiServis->pelanggan->nama_pelanggan}, berikut adalah nota servis Anda. Total Harga: Rp. " . number_format($totalHarga, 0, ',', '.') . ". Pembayaran: Rp. " . number_format($request->pembayaran, 0, ',', '.') . ". Kembalian: Rp. " . number_format($request->kembalian, 0, ',', '.') . ". Terima kasih!";
-
-        $pdf = Pdf::loadView('transaksiServis.invoice', [
-            'transaksiServis' => $transaksiServis,
-            'totalHarga' => $totalHarga,
-            'pembayaran' => $request->pembayaran,
-            'kembalian' => $request->kembalian
-        ]);
-
-        $pdfContent = base64_encode($pdf->output());
-
-        $fonnteToken = config('services.fonnte.token');
-
-        $response = Http::withHeaders([
-            'Authorization' => "Bearer {$fonnteToken}"
-        ])->withOptions([
-            'verify' => false
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $whatsappNumber,
-            'message' => $messageText,
-            'file' => $pdfContent,
-            'filename' => 'Nota_Servis_' . $transaksiServis->id_service . '.pdf',
-            'countryCode' => '62'
-        ]);
-
-        if ($response->successful()) {
-            return response()->json(['success' => true, 'message' => 'Nota berhasil dikirim ke WhatsApp pelanggan.']);
-        } else {
-            Log::error('Failed to send WhatsApp message:', [
-                'status' => $response->status(),
-                'response' => $response->body(),
-                'number' => $whatsappNumber,
-                'message' => $messageText
-            ]);
-            return response()->json(['success' => false, 'message' => 'Gagal mengirim nota via WhatsApp.']);
-        }
-    }
-
+    
     public function edit($id)
     {
-        $transaksiServis = TransaksiServis::with(['detailTransaksiServis.jasaServis', 'detailTransaksiServis.sparepart'])->find($id);
+        // 1. Muat relasi yang BENAR
+        $transaksiServis = TransaksiServis::with([
+            'pelanggan',
+            'laptop',
+            'teknisi',
+            'detailTransaksiServis.jasaServis',     // Untuk detail jasa
+            'detailServisSpareparts.sparepart' // Untuk detail sparepart
+        ])->findOrFail($id);
+
+        // 2. Siapkan data yang dibutuhkan oleh view
         $pelanggan = Pelanggan::all();
         $laptops = Laptop::all();
         $jasaServisList = JasaServis::all();
 
+        // Data untuk pre-fill form Jasa Servis
         $selectedJasaIds = $transaksiServis->detailTransaksiServis->pluck('id_jasa')->toArray();
-        $selectedCustomPrices = [];
-        $selectedSpareparts = [];
+        $selectedCustomPrices = $transaksiServis->detailTransaksiServis->pluck('harga_transaksi_jasa_servis', 'id_jasa');
 
-        foreach ($transaksiServis->detailTransaksiServis as $detail) {
-            $selectedCustomPrices[$detail->id_jasa] = $detail->harga_transaksi_jasa_servis;
-            if ($detail->id_sparepart) {
-                $selectedSpareparts = DetailTransaksiServis::where('id_service', $transaksiServis->id_service)
-                    ->with('sparepart')
-                    ->get()
-                    ->mapWithKeys(function ($detail) {
-                        return [
-                            $detail->id_jasa => [
-                                'jenis_sparepart' => $detail->sparepart->jenis_sparepart ?? null,
-                                'merek_sparepart' => $detail->sparepart->merek_sparepart ?? null,
-                                'model_sparepart' => $detail->sparepart->model_sparepart ?? null,
-                                'jumlah_sparepart' => $detail->jumlah_sparepart ?? null,
-                                'harga_sparepart' => $detail->sparepart->harga_sparepart ?? null,
-                                'subtotal_sparepart' => $detail->subtotal_sparepart ?? 0,
-                            ],
-                        ];
-                    });
-            }
-        }
+        // Kita tidak perlu lagi membuat $selectedSpareparts secara manual.
+        // View akan langsung mengaksesnya melalui $transaksiServis->detailServisSpareparts.
 
-        return view('transaksiServis.edit', compact('transaksiServis', 'pelanggan', 'laptops', 'jasaServisList', 'selectedJasaIds', 'selectedCustomPrices', 'selectedSpareparts'));
+        return view('transaksiServis.edit', compact(
+            'transaksiServis',
+            'pelanggan',
+            'laptops',
+            'jasaServisList',
+            'selectedJasaIds',
+            'selectedCustomPrices'
+        ));
     }
 
     public function update(Request $request, $id)
     {
+        // Validasi mirip dengan store, tapi id_servis tidak perlu unik
         $validatedData = $request->validate([
             'tanggal_masuk' => 'required|date',
-            'status_bayar' => 'required',
-            'jasa_servis' => 'required|array',
-            'nama_pelanggan' => 'required',
-            'nohp_pelanggan' => 'required',
-            'merek_laptop' => 'required',
-            'keluhan' => 'required',
+            'status_bayar' => 'required|string',
+            'nama_pelanggan' => 'required|string',
+            'nohp_pelanggan' => 'required|string',
+            'merek_laptop' => 'required|string',
+            'keluhan' => 'required|string',
+            'jasa_servis' => 'required|array|min:1',
+            // ... (validasi lainnya sama seperti store) ...
         ]);
 
         try {
@@ -429,84 +376,83 @@ class TransaksiServisController extends Controller
 
             $transaksiServis = TransaksiServis::findOrFail($id);
 
+            // 1. Urus Pelanggan dan Laptop
             $pelanggan = Pelanggan::firstOrCreate(
-                ['nohp_pelanggan' => $request->input('nohp_pelanggan')],
-                ['nama_pelanggan' => $request->input('nama_pelanggan')]
+                ['nohp_pelanggan' => $request->nohp_pelanggan],
+                ['nama_pelanggan' => $request->nama_pelanggan]
             );
 
             $laptop = Laptop::firstOrCreate(
-                [
-                    'id_pelanggan' => $pelanggan->id_pelanggan,
-                    'merek_laptop' => $request->input('merek_laptop'),
-                ],
-                ['deskripsi_masalah' => $request->input('keluhan')]
+                ['id_pelanggan' => $pelanggan->id_pelanggan, 'merek_laptop' => $request->merek_laptop],
+                ['deskripsi_masalah' => $request->keluhan]
             );
+
+            // 2. Update Header Transaksi
+            $akhirGaransi = null;
+            $jangkaGaransi = $request->jangka_garansi_bulan ?? 0;
+            if ($jangkaGaransi > 0) {
+                $akhirGaransi = Carbon::parse($request->tanggal_masuk)->addMonths($jangkaGaransi)->subDay()->format('Y-m-d');
+            }
 
             $transaksiServis->update([
                 'id_laptop' => $laptop->id_laptop,
-                'tanggal_masuk' => $request->input('tanggal_masuk'),
-                'tanggal_keluar' => $request->input('tanggal_keluar'),
-                'status_bayar' => $request->input('status_bayar'),
+                'tanggal_masuk' => $request->tanggal_masuk,
+                'tanggal_keluar' => $request->tanggal_keluar,
+                'status_bayar' => $request->status_bayar,
+                'jangka_garansi_bulan' => $jangkaGaransi,
+                'akhir_garansi' => $akhirGaransi,
             ]);
 
-            DetailTransaksiServis::where('id_service', $transaksiServis->id_service)->delete();
+            // 3. Hapus Detail Lama
+            $transaksiServis->detailTransaksiServis()->delete();
+            $transaksiServis->detailServisSpareparts()->delete();
 
-            $totalJasaServis = 0;
-            $subtotalServis = 0;
+            $totalHargaJasa = 0;
+            $totalHargaSparepart = 0;
 
-            foreach ($request->input('jasa_servis', []) as $jasaId) {
-                $jasaServis = JasaServis::find($jasaId);
+            // 4. Buat Ulang Detail Jasa (seperti di store)
+            foreach ($request->jasa_servis as $jasaId) {
+                $hargaJasa = $request->custom_price[$jasaId] ?? JasaServis::find($jasaId)->harga_jasa;
+                DetailTransaksiServis::create([
+                    'id_service' => $transaksiServis->id_service,
+                    'id_jasa' => $jasaId,
+                    'harga_transaksi_jasa_servis' => $hargaJasa,
+                ]);
+                $totalHargaJasa += $hargaJasa;
+            }
 
-                if ($jasaServis) {
-                    $sparepartTipe = $request->input("sparepart_tipe_{$jasaId}");
-                    $sparepartMerek = $request->input("sparepart_merek_{$jasaId}");
-                    $sparepartModel = $request->input("sparepart_model_{$jasaId}");
-                    $sparepartJumlah = $request->input("sparepart_jumlah_{$jasaId}");
-                    $sparepartHarga = $request->input("sparepart_harga_{$jasaId}");
-                    $sparepartSubtotal = $request->input("sparepart_subtotal_{$jasaId}");
+            // 5. Buat Ulang Detail Sparepart (seperti di store)
+            if ($request->has('spareparts')) {
+                foreach ($request->spareparts as $part) {
+                    if (empty($part['jenis_sparepart']) || $part['jenis_sparepart'] === '-') continue;
 
-                    $sparepartId = null;
-                    if ($sparepartTipe && $sparepartMerek && $sparepartModel) {
-                        $sparepart = Sparepart::firstOrCreate(
-                            [
-                                'jenis_sparepart' => $sparepartTipe,
-                                'merek_sparepart' => $sparepartMerek,
-                                'model_sparepart' => $sparepartModel,
-                            ],
-                            [
-                                'harga_sparepart' => $sparepartHarga,
-                            ]
-                        );
-
-                        $sparepartId = $sparepart->id_sparepart;
-                    }
-
-                    DetailTransaksiServis::create([
+                    $sparepart = Sparepart::firstOrCreate(
+                        ['jenis_sparepart' => $part['jenis_sparepart'], 'merek_sparepart' => $part['merek_sparepart'], 'model_sparepart' => $part['model_sparepart']],
+                        ['harga_sparepart' => $part['harga']]
+                    );
+                    $subtotalSparepart = ($part['jumlah'] ?? 1) * ($part['harga'] ?? 0);
+                    DetailTransaksiServisSparepart::create([
                         'id_service' => $transaksiServis->id_service,
-                        'id_jasa' => $jasaServis->id_jasa,
-                        'id_sparepart' => $sparepartId,
-                        'harga_transaksi_jasa_servis' => $request->input('custom_price')[$jasaId],
-                        'jangka_garansi_bulan' => $request->input("jangka_garansi_{$jasaServis->jenis_jasa}", 1),
-                        'akhir_garansi' => $request->input("tgl_mulai_{$jasaServis->jenis_jasa}"),
-                        'subtotal_servis' => $request->input('custom_price')[$jasaId],
-                        'subtotal_sparepart' => $sparepartSubtotal ? $sparepartSubtotal : 0,
-                        'jumlah_sparepart_terpakai' => $sparepartJumlah ? $sparepartJumlah : null,
+                        'id_sparepart' => $sparepart->id_sparepart,
+                        'jumlah_sparepart_terpakai' => $part['jumlah'],
+                        'harga_per_unit' => $part['harga'],
+                        'subtotal_sparepart' => $subtotalSparepart,
                     ]);
-
-                    $subtotalServis += $request->input('custom_price')[$jasaId];
-                    $totalJasaServis += $request->input('custom_price')[$jasaId]  + ($sparepartHarga ?? 0);
+                    $totalHargaSparepart += $subtotalSparepart;
                 }
             }
-            $transaksiServis->update(['subtotal_servis' => $subtotalServis]);
-            $transaksiServis->update(['harga_total_transaksi_servis' => $totalJasaServis]);
+
+            // 6. Update Harga Total
+            $transaksiServis->harga_total_transaksi_servis = $totalHargaJasa + $totalHargaSparepart;
+            $transaksiServis->save();
 
             DB::commit();
 
-            return redirect()->route('transaksiServis.index')->with('success', 'Transaksi Servis updated successfully!');
+            return redirect()->route('transaksiServis.index')->with('success', 'Transaksi Servis berhasil diperbarui!');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error updating Transaksi Servis: ' . $e->getMessage());
-            return redirect()->back()->withErrors('Error updating Transaksi Servis: ' . $e->getMessage());
+            Log::error('Error updating Transaksi Servis: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+            return redirect()->back()->withInput()->withErrors('Gagal memperbarui transaksi: ' . $e->getMessage());
         }
     }
 

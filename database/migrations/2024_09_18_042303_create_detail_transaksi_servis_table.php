@@ -12,19 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('detail_transaksi_servis', function (Blueprint $table) {
+            $table->id(); // BARU: Menambahkan primary key standar
+
             $table->string('id_service');
             $table->foreign('id_service')->references('id_service')->on('service')->onDelete('cascade');
+            
             $table->string('id_jasa');
             $table->foreign('id_jasa')->references('id_jasa')->on('jasa_servis')->onDelete('cascade');
-            $table->string('id_sparepart')->nullable();
-            $table->foreign('id_sparepart')->references('id_sparepart')->on('sparepart')->onDelete('cascade');
+            
             $table->integer('harga_transaksi_jasa_servis');
-            $table->integer('jumlah_sparepart_terpakai')->nullable();
-            $table->integer('jangka_garansi_bulan');
-            $table->date('akhir_garansi');
-            $table->integer('subtotal_servis');
-            $table->integer('subtotal_sparepart')->nullable();
+            
+            // Kolom garansi per jasa
+            $table->integer('jangka_garansi_bulan')->default(0);
+            $table->date('akhir_garansi')->nullable();
+            
             $table->timestamps();
+
+            // HAPUS: Semua kolom terkait sparepart dan subtotal dihapus dari sini.
         });
     }
 

@@ -4,37 +4,34 @@ namespace App\Models\TransaksiServis;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Sparepart\Sparepart;
-
+use App\Models\Sparepart\Sparepart; // Bisa dihapus jika tidak ada relasi langsung
 
 class DetailTransaksiServis extends Model
 {
     use HasFactory;
 
     protected $table = 'detail_transaksi_servis';
-    protected $keyType = 'string';
+
+    // Biarkan Laravel mengelola primary key (default: 'id', auto-increment)
+    // dan timestamps (created_at, updated_at).
+    public $timestamps = true;
+
     protected $fillable = [
         'id_service',
         'id_jasa',
-        'id_sparepart',
         'harga_transaksi_jasa_servis',
-        'jumlah_sparepart_terpakai',
         'jangka_garansi_bulan',
-        'akhir_garansi',
-        'subtotal_servis',
-        'subtotal_sparepart'
+        'akhir_garansi'
+        // Kolom 'subtotal_servis' sudah dihapus dari sini.
     ];
-    public function service()
+
+    public function transaksiServis()
     {
-        return $this->belongsTo(Service::class, 'id_service');
+        return $this->belongsTo(TransaksiServis::class, 'id_service', 'id_service');
     }
+
     public function jasaServis()
     {
         return $this->belongsTo(JasaServis::class, 'id_jasa', 'id_jasa');
     }
-    public function sparepart()
-    {
-        return $this->belongsTo(Sparepart::class, 'id_sparepart', 'id_sparepart');
-    }
-
 }

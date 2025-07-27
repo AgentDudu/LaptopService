@@ -125,7 +125,7 @@ use Illuminate\Support\Facades\Auth;
                                 style="border: 1px solid #ccc; padding: 10px; text-align: center; width: 100%; margin-top: -50px; margin-left:50px;">
                                 <label>Total Transaksi:</label>
                                 <h3><strong class="total-transaksi-amount">Rp.
-                                        {{ number_format($transaksiServis->harga_total_transaksi_servis + $transaksiServis->detailTransaksiServis->sum('subtotal_sparepart'), 0, ',', '.') }}</strong>
+                                    {{ number_format($transaksiServis->harga_total_transaksi_servis, 0, ',', '.') }}</strong>
                                 </h3>
                             </div>
                         </div>
@@ -229,63 +229,51 @@ use Illuminate\Support\Facades\Auth;
                         <!-- Sparepart Section -->
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <h5>Sparepart</h5>
-                                <div id="sparepart-container">
-                                    @php
-                                    $sparepartCount = 0;
-                                    @endphp
-                                    @if (!empty($selectedSpareparts))
-                                    @foreach ($selectedSpareparts as $jasaId => $sparepart)
-                                    @php $sparepartCount++; @endphp
-                                    <div class="row mb-2 align-items-center sparepart-item">
-                                        <div class="col-md-2">
-                                            <label for="sparepart_tipe_{{ $sparepartCount }}"
-                                                class="form-label">Tipe</label>
-                                            <input type="text" id="sparepart_tipe_{{ $sparepartCount }}"
-                                                name="sparepart_tipe_{{ $jasaId }}" class="form-control"
-                                                value="{{ $sparepart['jenis_sparepart'] ?? '-' }}" readonly>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="sparepart_merek_{{ $sparepartCount }}"
-                                                class="form-label">Merek</label>
-                                            <input type="text" id="sparepart_merek_{{ $sparepartCount }}"
-                                                name="sparepart_merek_{{ $jasaId }}" class="form-control"
-                                                value="{{ $sparepart['merek_sparepart'] ?? '-' }}" readonly>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="sparepart_model_{{ $sparepartCount }}"
-                                                class="form-label">Model</label>
-                                            <input type="text" id="sparepart_model_{{ $sparepartCount }}"
-                                                name="sparepart_model_{{ $jasaId }}" class="form-control"
-                                                value="{{ $sparepart['model_sparepart'] ?? '-' }}" readonly>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <label for="sparepart_jumlah_{{ $sparepartCount }}"
-                                                class="form-label">Jumlah</label>
-                                            <input type="number" id="sparepart_jumlah_{{ $sparepartCount }}"
-                                                name="sparepart_jumlah_{{ $jasaId }}" class="form-control"
-                                                value="{{ $sparepart['jumlah_sparepart'] ?? 1 }}" readonly>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="sparepart_harga_{{ $sparepartCount }}" class="form-label">Harga
-                                                Sparepart</label>
-                                            <input type="number" id="sparepart_harga_{{ $sparepartCount }}"
-                                                name="sparepart_harga_{{ $jasaId }}" class="form-control"
-                                                value="{{ $sparepart['harga_sparepart'] ?? 0 }}" readonly>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="sparepart_subtotal_{{ $sparepartCount }}" class="form-label">Sub
-                                                Total Sparepart</label>
-                                            <input type="number" id="sparepart_subtotal_{{ $sparepartCount }}"
-                                                name="sparepart_subtotal_{{ $jasaId }}"
-                                                class="form-control subtotal-sparepart"
-                                                value="{{ $sparepart['subtotal_sparepart'] ?? 0 }}" readonly>
-                                        </div>
+                                <h5>Sparepart yang Digunakan</h5>
+                                
+                                @if ($transaksiServis->detailServisSpareparts->isEmpty())
+                                    <p class="text-muted">Tidak ada sparepart yang digunakan dalam servis ini.</p>
+                                @else
+                                    <div id="sparepart-container">
+                                        {{-- Loop through each sparepart detail record --}}
+                                        @foreach ($transaksiServis->detailServisSpareparts as $index => $detailSparepart)
+                                            <div class="row mb-2 align-items-center sparepart-item">
+                                                <div class="col-md-2">
+                                                    @if($index == 0) <label class="form-label">Tipe</label> @endif
+                                                    <input type="text" class="form-control" 
+                                                        value="{{ $detailSparepart->sparepart->jenis_sparepart }}" readonly>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    @if($index == 0) <label class="form-label">Merek</label> @endif
+                                                    <input type="text" class="form-control" 
+                                                        value="{{ $detailSparepart->sparepart->merek_sparepart }}" readonly>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    @if($index == 0) <label class="form-label">Model</label> @endif
+                                                    <input type="text" class="form-control" 
+                                                        value="{{ $detailSparepart->sparepart->model_sparepart }}" readonly>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    @if($index == 0) <label class="form-label">Jumlah</label> @endif
+                                                    <input type="number" class="form-control" 
+                                                        value="{{ $detailSparepart->jumlah_sparepart_terpakai }}" readonly>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    @if($index == 0) <label class="form-label">Harga/Unit</label> @endif
+                                                    <input type="text" class="form-control" 
+                                                        value="Rp. {{ number_format($detailSparepart->harga_per_unit, 0, ',', '.') }}" readonly>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    @if($index == 0) <label class="form-label">Sub Total</label> @endif
+                                                    <input type="text" class="form-control subtotal-sparepart" 
+                                                        value="Rp. {{ number_format($detailSparepart->subtotal_sparepart, 0, ',', '.') }}" readonly>
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
-                                    @endif
-                                </div>
+                                @endif
                             </div>
+                        </div>
                         </div>
 
 

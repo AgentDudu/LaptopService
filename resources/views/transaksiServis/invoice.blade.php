@@ -4,92 +4,27 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nota Servis</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 16px;
-            margin: 0;
-            font-weight: bold;
-        }
-
-        .header p {
-            margin: 3px 0;
-            font-size: 10px;
-        }
-
-        .info-section,
-        .service-section,
-        .total-section {
-            margin-bottom: 15px;
-        }
-
-        .info-section table,
-        .service-section table,
-        .total-section table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        .info-section td,
-        .service-section td,
-        .service-section th,
-        .total-section td {
-            padding: 5px;
-            vertical-align: top;
-        }
-
-        .info-section td:first-child {
-            width: 100px;
-        }
-
-        .service-section th {
-            text-align: left;
-        }
-
-        .service-section td,
-        .service-section th {
-            border-bottom: 1px solid #ddd;
-        }
-
-        .total-section td {
-            padding-top: 5px;
-        }
-
-        .footer {
-            margin-top: 20px;
-            text-align: right;
-            font-size: 12px;
-        }
-
-        .footer .teknisi {
-            margin-top: 10px;
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid black;
-            margin: 10px 0;
-        }
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 16px; margin: 0; font-weight: bold; }
+        .header p { margin: 3px 0; font-size: 10px; }
+        .info-section, .service-section, .total-section { margin-bottom: 15px; }
+        .info-section table, .service-section table, .total-section table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .info-section td, .service-section td, .service-section th, .total-section td { padding: 5px; vertical-align: top; }
+        .info-section td:first-child { width: 100px; }
+        .service-section th { text-align: left; }
+        .service-section td, .service-section th { border-bottom: 1px solid #ddd; }
+        .total-section td { padding-top: 5px; }
+        .footer { margin-top: 20px; text-align: right; font-size: 12px; }
+        .footer .teknisi { margin-top: 10px; }
+        hr { border: none; border-top: 1px solid black; margin: 10px 0; }
     </style>
 </head>
-
 <body>
 
     <!-- Header Section -->
@@ -111,7 +46,7 @@
             </tr>
             <tr>
                 <td>Tanggal Bayar</td>
-                <td>: {{ date('d-m-Y') }}</td>
+                <td>: {{ \Carbon\Carbon::now()->format('d-m-Y') }}</td>
             </tr>
             <tr>
                 <td>Nama User</td>
@@ -130,11 +65,11 @@
         <table>
             <tr>
                 <td>Tanggal Masuk</td>
-                <td>: {{ date('d-m-Y', strtotime($transaksiServis->tanggal_masuk)) }}</td>
+                <td>: {{ \Carbon\Carbon::parse($transaksiServis->tanggal_masuk)->format('d-m-Y') }}</td>
             </tr>
             <tr>
                 <td>Tanggal Keluar</td>
-                <td>: {{ date('d-m-Y', strtotime($transaksiServis->tanggal_keluar)) }}</td>
+                <td>: {{ $transaksiServis->tanggal_keluar ? \Carbon\Carbon::parse($transaksiServis->tanggal_keluar)->format('d-m-Y') : '-' }}</td>
             </tr>
             <tr>
                 <td>Merek Laptop</td>
@@ -150,14 +85,24 @@
             </tr>
             <tr>
                 <td>Garansi</td>
-                <td>: {{ $transaksiServis->detailTransaksiServis->pluck('jangka_garansi_bulan')->join(', ') }}</td>
+                <td>: 
+                    @foreach($transaksiServis->detailTransaksiServis as $detail)
+                        {{ $detail->jasaServis->jenis_jasa }} ({{ $detail->jangka_garansi_bulan }} bulan)@if(!$loop->last), @endif
+                    @endforeach
+                </td>
             </tr>
             <tr>
                 <td>Tambahan Sparepart</td>
                 <td>:
-                    @foreach ($transaksiServis->detailTransaksiServis as $detail)
-                        {{ $detail->sparepart ? $detail->sparepart->jenis_sparepart : '' }}
-                    @endforeach
+                    {{-- PERUBAHAN KUNCI ADA DI SINI --}}
+                    @if($transaksiServis->detailServisSpareparts->isEmpty())
+                        -
+                    @else
+                        {{ $transaksiServis->detailServisSpareparts->map(function($detail) {
+                                return $detail->sparepart->jenis_sparepart . ' (' . $detail->jumlah_sparepart_terpakai . 'x)';
+                            })->join(', ')
+                        }}
+                    @endif
                 </td>
             </tr>
             <tr>
@@ -184,9 +129,8 @@
     <!-- Footer Section -->
     <div class="footer">
         <p>Teknisi</p>
-        <p class="teknisi">{{ Auth::user()->nama_teknisi }}</p>
+        <p class="teknisi">{{ $transaksiServis->teknisi->nama_teknisi ?? 'N/A' }}</p>
     </div>
 
 </body>
-
 </html>
