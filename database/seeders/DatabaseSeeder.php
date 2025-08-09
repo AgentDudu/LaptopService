@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
-        // $this->call([
-        //     SparepartSeeder::class,
-        //     JualSparepartSeeder::class,
-        //     DetailTransaksiSparepartSeeder::class,
-        // ]);
+
+        // Add this line to call your TeknisiSeeder
+        $this->call([
+            TeknisiSeeder::class,
+        ]);
     }
 }
